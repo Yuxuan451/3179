@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Australia's Threatened Species</title>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- ========================= -->
+    <!-- HERO SECTION -->
+    <!-- ========================= -->
+
+    <header class="hero">
+
+        <div class="hero-content">
+
+            <p class="eyebrow">AUSTRALIAN BIODIVERSITY</p>
+
+            <h1>Australia's Threatened Species</h1>
+
+            <p class="hero-description">
+                Exploring where Australia's threatened species are distributed
+                and how their populations are changing over time.
+            </p>
+
+        </div>
+
+    </header>
+
+
+    <!-- ========================= -->
+    <!-- MAIN CONTENT -->
+    <!-- ========================= -->
+
+    <main class="container">
+
+        <!-- Introduction -->
+
+        <section class="titlesection">
+
+            <p class="section-label">01 — DISTRIBUTION</p>
+
+            <h2>Geographic Concentration of Australia’s Threatened Species</h2>
+
+            <p>
+                Threatened species are not distributed evenly across Australia.
+                This map shows the number of unique threatened species recorded
+                within each Australian state and territory.
+            </p>
+
+        </section>
+
+        <article class="card-grid">
+            <div class="card-left">
+                <div id="choropleth_map" class="canvas-container"></div>
+            </div>
+            <div class="card-right">
+                <p class="insight-label">GEOGRAPHIC PATTERN</p>
+                <h2>Unique Species Richness by Jurisdiction</h2>
+                <p>
+                    New South Wales and Queensland have high recorded counts
+                    of threatened species, while the Northern Territory has
+                    fewer. These differences reflect recorded species richness,
+                    not necessarily the severity of conservation pressure.
+                </p>
+
+                <div class="map-stat-note">
+                    <strong>What to look for</strong>
+                    <p>
+                        Compare the darkest states with lighter regions to
+                        identify where recorded threatened-species richness
+                        is concentrated.
+                    </p>
+                </div>
+            </div>
+
+        </article>
+
+        <article class="card-grid reverse">
+            <div class="card-left">
+                <div id="proportional_symbol_map" class="canvas-container"></div>
+            </div>
+            <div class="card-right">
+                <p class="insight-label">TAXONOMIC COMPOSITION</p>
+                <h2>Different groups dominate across regions</h2>
+                <p>
+                    Birds and mammals form some of the largest clusters,
+                    particularly across eastern and southern states.
+                    Amphibians show a more concentrated distribution,
+                    reflecting their stronger association with freshwater
+                    and rainforest environments.
+                </p>
+              
+            </div>
+        </article>
+
+        <article class="card-grid">
+            <div class="card-left">
+                <div id="dot_density_map" class="canvas-container"></div>
+            </div>
+            <div class="card-right">
+                <p class="insight-label">THREAT STATUS DISTRIBUTION</p>
+                <h2>Threatened species cluster unevenly across Australia</h2>
+                <p>
+                    Eastern and southern states contain denser concentrations
+                    of threatened species, while the Northern Territory and
+                    other regions show fewer recorded species. The colours
+                    also reveal that these clusters contain a mixture of
+                    IUCN threat levels.
+                </p>
+              
+            </div>
+        </article>
+
+        <section class="titlesection">
+
+            <p class="section-label">02 — DISTRIBUTION</p>
+
+            <h2>WHAT ARE THEY?</h2>
+
+            <p>
+                Threatened species are not distributed evenly across Australia.
+                This map shows the number of unique threatened species recorded
+                within each Australian state and territory.
+            </p>
+
+        </section>
+
+        <article class="card-grid">
+            <div class="card-left">
+                <div id="tornado_chart" class="canvas-container"></div>
+            </div>
+            <div class="card-right">
+                <p class="insight-label">KINGDOM COMPOSITION</p>
+                <h2>Plants and animals show different patterns across states</h2>
+                <p>
+                    Plants and animals are not evenly represented across Australia. 
+                    Some states show a stronger concentration of threatened plant 
+                    species, while others have relatively more threatened animal 
+                    species, revealing distinct biodiversity profiles across states.
+                </p>
+              
+            </div>
+        </article>
+
+                <article class="card-grid reverse">
+            <div class="card-left">
+                <div id="radial_stacked_bar" class="canvas-container"></div>
+            </div>
+            <div class="card-right">
+                <p class="insight-label">THREAT STATUS COMPOSITION</p>
+                <h2>Mix of threat levels varies across states</h2>
+                <p>
+                    The radial stacked bars show how threatened species in 
+                    each state are distributed across different threat categories. 
+                    While some states contain more threatened species overall, 
+                    the composition of their threat levels is also different, 
+                    with some showing larger proportions of Critically Endangered 
+                    and Endangered species.
+                </p>
+            </div>
+        </article>
+
+                </article>
+
+        <article class="card-grid ">
+            <div class="card-left">
+                <div id="sunburst" class="canvas-container"></div>
+            </div>
+            <div class="card-right">
+                <p class="insight-label">TAXONOMIC STRUCTURE</p>
+                <h2>Threatened species span a complex taxonomic hierarchy</h2>
+                <p>
+                    The sunburst reveals how Australia's threatened species are
+                    organised from Kingdom through Class, Family and Genus.
+                    The expanding branches show that threatened biodiversity is
+                    distributed across many taxonomic groups, with some families
+                    and genera containing substantially more species than others.
+                </p>
+            </div>
+        </article>
+
+        <article class="card-grid reverse">
+            <div class="card-left">
+                <div id="sankey_diagram" class="canvas-container"></div>
+            </div>
+            <div class="card-right">
+                <p class="insight-label">TAXONOMIC HIERARCHY</p>
+                <h2>Explore how threatened species are organised across taxonomic levels</h2>
+                <p>
+                    The Sankey diagram shows the hierarchical structure of Australia's
+                    threatened species, tracing each taxonomic group through its
+                    Orders and Families. Select a taxonomic group to focus on its
+                    hierarchy and explore how species are distributed across these levels.
+                </p>
+
+                <!-- //filter card -->
+                <div class="map-stat-note">
+                    <div class="sankey-filter">
+                        <label for="taxonomicFilter">
+                            Taxonomic Group:
+                        </label>
+                        <select id="taxonomicFilter">
+                            <option value="All">All</option>
+                            <option value="Birds">Birds</option>
+                            <option value="Mammals">Mammals</option>
+                            <option value="Amphibians">Amphibians</option>
+                            <option value="Plants">Plants</option>
+                        </select>
+                        <p>
+                        Select a group to explore its taxonomic hierarchy.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </article>
+              
+
+        <section class="titlesection">
+
+            <p class="section-label">02 — Time Series</p>
+
+            <h2>WHAT IS HAPPENING OVER TIME?</h2>
+
+            <p>
+                Threatened species are not distributed evenly across Australia.
+                This map shows the number of unique threatened species recorded
+                within each Australian state and territory.
+            </p>
+
+        </section>
+
+        <article class="card-grid reverse">
+            <div class="card-left">
+                <div id="stream_graph" class="canvas-container"></div>
+            </div>
+            <div class="card-right">
+                <p class="insight-label">POPULATION CHANGE</p>
+                <h2>Percentage Change in Threatened Species Abundance</h2>
+                <p>
+                    This chart shows the percentage change in combined species abundance relative to 2000. Only taxonomic groups with valid
+                    abundance data in 2000 are included, ensuring that percentage changes can be calculated consistently.
+                    Values below 0% indicate a decline from the 2000 baseline, while positive values indicate an increase.
+                </p>
+            </div>
+        </article>
+
+        <article class="card-grid ">
+            <div class="card-left">
+                <div id="connected_dot" class="canvas-container"></div>
+            </div>
+            <div class="card-right">
+                <p class="insight-label">THREAT STATUS CHANGE ACROSS YEAR</p>
+                <h2>Changes in abundance differ across threat levels</h2>
+                <p>
+                    Comparing 2000 with 2021 reveals different levels of change across 
+                    IUCN statuses. Categories with longer connections experienced 
+                    larger percentage shifts in combined abundance, while shorter 
+                    connections indicate more limited change over the same period.
+                </p>
+            </div>
+        </article>
+
+        <article class="card-grid reverse ">
+            <div class="card-left">
+                <div id="bump_chart" class="canvas-container"></div>
+            </div>
+            <div class="card-right">
+                <p class="insight-label">STATE RANKING</p>
+                <h2>The relative position of states changes over time</h2>
+                <p>
+                    The bump chart ranks states according to the combined abundance
+                    of threatened species in each year from 2000 to 2021. Changes
+                    in the lines show which states moved higher or lower in the
+                    ranking, highlighting shifts in their relative position over time.
+                </p>
+            </div>
+        </article>
+
+        <!-- DATA SOURCE -->
+        <section class="source-section">
+            <p><strong>Data source:</strong>Australian Threatened Species Index (TSX), 2024.</p>
+            <p><strong>Student Name: </strong>Ng Yu Xuan</p>
+            <p><strong>StudentID: </strong>34076271</p>
+        </section>
+
+    </main>
+
+
+    <!-- JavaScript -->
+
+    <script src="A2.js"></script>
+
+</body>
+
+</html>
