@@ -1,0 +1,87 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 850,
+  "height": 450,
+  "data": {
+    "values": []
+  },
+  "layer": [
+    {
+      "mark": {
+        "type": "line",
+        "strokeWidth": 3,
+        "point": true
+      },
+      "encoding": {
+        "x": {
+          "field": "Year",
+          "type": "quantitative",
+          "scale": {
+            "domain": [2000, 2021]
+          },
+          "axis": {
+            "title": "Year",
+            "format": "d",
+            "tickCount": 10
+          }
+        },
+        "y": {
+        "field": "PctChange",
+        "type": "quantitative",
+        "scale": {
+            "domain": [-2, 2],
+            "clamp": true
+        },
+        "axis": {
+            "title": "Change in Abundance",
+            "format": "+.0%"
+        }
+        },
+        "color": {
+          "field": "TaxonomicGroup",
+          "type": "nominal",
+          "title": "Taxonomic Group",
+          "scale": {
+            "domain": ["Birds", "Mammals", "Plants", "Amphibians"],
+            "range": ["#0072B2", "#D55E00", "#009E73", "#CC79A7"]
+          }
+        },
+        "detail": {
+          "field": "TaxonomicGroup"
+        },
+        "tooltip": [
+          {
+            "field": "TaxonomicGroup",
+            "type": "nominal",
+            "title": "Taxonomic Group"
+          },
+          {
+            "field": "Year",
+            "type": "quantitative",
+            "title": "Year",
+            "format": "d"
+          },
+          {
+            "field": "PctChange",
+            "type": "quantitative",
+            "title": "Change from 2000",
+            "format": "+.1%"
+          }
+        ]
+      }
+    },
+    {
+      "mark": {
+        "type": "rule",
+        "color": "#333333",
+        "strokeDash": [5, 5],
+        "strokeWidth": 1.5
+      },
+      "encoding": {
+        "y": {
+          "datum": 0
+        }
+      }
+    }
+  ]
+}
