@@ -1,0 +1,144 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+
+  "width": 800,
+  "height": 450,
+
+  "title": {
+    "text": "Changes in State Ranking Over Time",
+    "subtitle": "State ranking based on combined abundance of threatened species",
+    "fontSize": 22,
+    "subtitleFontSize": 14,
+    "anchor": "start"
+  },
+
+  "data": {
+    "values": []
+  },
+
+  "layer": [
+
+    {
+      "mark": {
+        "type": "line",
+        "strokeWidth": 2
+      },
+
+      "encoding": {
+        "x": {
+          "field": "Year",
+          "type": "quantitative",
+          "scale": {
+            "domain": [2000, 2021]
+          },
+          "axis": {
+            "title": "Year",
+            "format": "d",
+            "tickCount": 8
+          }
+        },
+
+        "y": {
+          "field": "Rank",
+          "type": "quantitative",
+          "scale": {
+            "reverse": true,
+            "domain": [1, 8]
+          },
+          "axis": {
+            "title": "State Rank",
+            "values": [1, 2, 3, 4, 5, 6, 7, 8]
+          }
+        },
+
+        "color": {
+          "field": "State",
+          "type": "nominal",
+          "title": "State"
+        },
+
+        "detail": {
+          "field": "State"
+        },
+
+        "tooltip": [
+          {
+            "field": "State",
+            "type": "nominal",
+            "title": "State"
+          },
+          {
+            "field": "Year",
+            "type": "quantitative",
+            "title": "Year",
+            "format": "d"
+          },
+          {
+            "field": "Rank",
+            "type": "quantitative",
+            "title": "Rank"
+          },
+          {
+            "field": "Abundance",
+            "type": "quantitative",
+            "title": "Combined Abundance",
+            "format": ","
+          }
+        ]
+      }
+    },
+
+    {
+      "mark": {
+        "type": "point",
+        "filled": true,
+        "size": 60
+      },
+
+      "encoding": {
+        "x": {
+          "field": "Year",
+          "type": "quantitative"
+        },
+
+        "y": {
+          "field": "Rank",
+          "type": "quantitative",
+          "scale": {
+            "reverse": true
+          }
+        },
+
+        "color": {
+          "field": "State",
+          "type": "nominal"
+        },
+
+        "tooltip": [
+          {
+            "field": "State",
+            "type": "nominal",
+            "title": "State"
+          },
+          {
+            "field": "Year",
+            "type": "quantitative",
+            "title": "Year",
+            "format": "d"
+          },
+          {
+            "field": "Rank",
+            "type": "quantitative",
+            "title": "Rank"
+          },
+          {
+            "field": "Abundance",
+            "type": "quantitative",
+            "title": "Combined Abundance",
+            "format": ","
+          }
+        ]
+      }
+    }
+  ]
+}

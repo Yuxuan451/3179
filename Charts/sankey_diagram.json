@@ -1,0 +1,232 @@
+{
+    "$schema": "https://vega.github.io/schema/vega/v5.json",
+
+    "width": 600,
+    "height": 600,
+     "autosize": {
+        "type": "fit",
+        "contains": "padding"
+    },
+
+    "title": {
+        "text": "Taxonomic Hierarchy of Threatened Species",
+        "fontSize": 22,
+        "anchor": "start"
+    },
+
+    "data": [
+
+        {
+            "name": "links",
+            "values": []
+        },
+
+        {
+            "name": "nodes",
+            "values": []
+        }
+
+    ],
+
+    "marks": [
+
+        {
+            "type": "path",
+
+            "from": {
+                "data": "links"
+            },
+
+            "encode": {
+
+                "enter": {
+
+                    "path": {
+                        "field": "path"
+                    },
+
+                    "stroke": {
+                        "value": "#a6bddb"
+                    },
+
+                    "strokeOpacity": {
+                        "value": 0.35
+                    },
+
+                    "fill": {
+                        "value": "null"
+                    }
+
+                },
+
+                "update": {
+                    "path": { "field": "path" },
+                    "strokeOpacity": { "value": 0.4 },
+                    "strokeWidth": { "field": "width" }
+                }
+
+            }
+
+        },
+
+
+        {
+            "type": "rect",
+
+            "from": {
+                "data": "nodes"
+            },
+
+            "encode": {
+
+                "enter": {
+
+                    "x": {
+                        "field": "x0"
+                    },
+
+                    "x2": {
+                        "field": "x1"
+                    },
+
+                    "y": {
+                        "field": "y0"
+                    },
+
+                    "y2": {
+                        "field": "y1"
+                    },
+
+                    "fill": {
+
+                        "scale": "nodeColor",
+
+                        "field": "level"
+
+                    },
+
+                    "stroke": {
+                        "value": "white"
+                    },
+
+                    "strokeWidth": {
+                        "value": 1
+                    }
+
+                }
+
+            }
+
+        },
+
+
+        {
+            "type": "text",
+
+            "from": {
+                "data": "nodes"
+            },
+
+            "encode": {
+
+                "enter": {
+
+                    "x": {
+
+                        "signal":
+                            "datum.x0 < width / 2 ? datum.x1 + 6 : datum.x0 - 6"
+
+                    },
+
+                    "y": {
+
+                        "signal":
+                            "(datum.y0 + datum.y1) / 2"
+
+                    },
+
+                    "text": {
+                        "field": "name"
+                    },
+
+                    "align": {
+
+                        "signal":
+                            "datum.x0 < width / 2 ? 'left' : 'right'"
+
+                    },
+
+                    "baseline": {
+                        "value": "middle"
+                    },
+
+                    "fontSize": {
+                        "value": 10
+                    },
+
+                    "fill": {
+                        "value": "#333"
+                    }
+
+                },
+
+                "update": {
+
+                    "x": {
+                        "signal": "datum.level === 'family' ? datum.x0 - 6 : datum.x1 + 6"
+                    },
+
+                    "y": {
+                        "signal": "(datum.y0 + datum.y1) / 2"
+                    },
+
+                    "align": {
+                        "signal": "datum.level === 'family' ? 'right' : 'left'"
+                    },
+
+                    "text": {
+                        "field": "name"
+                    },
+
+                    "opacity": [
+                        {
+                            "test": "datum.nodeHeight >= 10",
+                            "value": 1
+                        },
+                        {
+                            "value": 0
+                        }
+                    ]
+
+                }
+
+            }
+
+        }
+
+    ],
+
+    "scales": [
+
+        {
+            "name": "nodeColor",
+
+            "type": "ordinal",
+
+            "domain": [
+                "group",
+                "family",
+                "genus"
+            ],
+
+            "range": [
+                "#4C78A8",
+                "#72B7B2",
+                "#F2CF5B"
+            ]
+
+        }
+
+    ]
+
+}

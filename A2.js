@@ -673,7 +673,7 @@ fetch(data_gov)
 // CREATE MAP FUNCTION
 // ==========================================
 function createMap(stateCounts, proportionalSymbolData, dotDensityData, mapData) {
-    fetch("choropleth_map.json")
+    fetch("Maps/choropleth_map.json")
         .then(response => response.json())
         .then(spec => {
             // MAP DATA
@@ -706,7 +706,7 @@ function createMap(stateCounts, proportionalSymbolData, dotDensityData, mapData)
             console.error("Error loading choropleth_map.json:", error);
         });
 
-    fetch("proportional_symbol_map.json")
+    fetch("Maps/proportional_symbol_map.json")
         .then(response => response.json())
         .then(spec => {
             // Insert our calculated state data
@@ -723,7 +723,7 @@ function createMap(stateCounts, proportionalSymbolData, dotDensityData, mapData)
             console.error("Error loading proportional_symbol_map.json:", error);
         });
 
-    fetch("dot_density_map.json")
+    fetch("Maps/dot_density_map.json")
         .then(response => response.json())
         .then(spec => {
             spec.layer[1].data.values = dotDensityData;
@@ -768,7 +768,7 @@ function createMap(stateCounts, proportionalSymbolData, dotDensityData, mapData)
 
 function createChart(tornadochartData, radialStackedData, hierarchyNodes) {
 
-    fetch("tornado_chart.json")
+    fetch("Charts/tornado_chart.json")
         .then(response => response.json())
         .then(spec => {
             spec.data.values = tornadochartData;
@@ -778,7 +778,7 @@ function createChart(tornadochartData, radialStackedData, hierarchyNodes) {
             console.error("tornado chart error:", error);
         });
 
-    fetch("radial_stacked_bar.json")
+    fetch("Charts/radial_stacked_bar.json")
         .then(response => response.json())
         .then(spec => {
 
@@ -803,7 +803,7 @@ function createChart(tornadochartData, radialStackedData, hierarchyNodes) {
             );
         });
 
-        fetch("sunburst.json")
+    fetch("Charts/sunburst.json")
             .then(response => response.json())
             .then(spec => {
 
@@ -833,7 +833,7 @@ function createChart(tornadochartData, radialStackedData, hierarchyNodes) {
 }
 
 function createTimeGraph(lineChartData, connectedDotPctData) {
-    fetch("stream_graph.json")
+    fetch("Time-Series/stream_graph.json")
         .then(response => response.json())
         .then(spec => {
             // Insert aggregated time-series data
@@ -843,7 +843,7 @@ function createTimeGraph(lineChartData, connectedDotPctData) {
         .catch(error => {
             console.error("Time series error:", error);});
 
-    fetch("connected_dot.json")
+    fetch("Time-Series/connected_dot.json")
         .then(response => response.json())
         .then(spec => {
 
@@ -874,7 +874,7 @@ function createTimeGraph(lineChartData, connectedDotPctData) {
 
 function createBumpChart(bumpChartData) {
 
-    fetch("bump_chart.json")
+    fetch("Time-Series/bump_chart.json")
         .then(response => response.json())
         .then(spec => {
 
@@ -993,6 +993,7 @@ function createSankey(sankeyData) {
 // calculates the D3 Sankey layout and
 // renders the result in Vega.
 // ==========================================
+
 
 async function updateSankey(selectedGroup = "All") {
 
@@ -1238,12 +1239,20 @@ async function updateSankey(selectedGroup = "All") {
     // 6. DYNAMIC HEIGHT
     // ==========================================
 
+    const topMargin = 30;
+    const bottomMargin = 40;
+
+    // Give each node enough vertical space.
+    // The height can grow for dense groups instead
+    // of squeezing every group into 700px.
+    const nodeHeightTarget = 28;
+
     const dynamicHeight =
         Math.min(
-            700,
-            Math.max(
-                400,
-                maxNodes * 24
+            500,
+            Math.min(
+                1800,
+                maxNodes * nodeHeightTarget + topMargin + bottomMargin
             )
         );
 
@@ -1289,14 +1298,14 @@ async function updateSankey(selectedGroup = "All") {
     // 8. D3 SANKEY LAYOUT
     // ==========================================
     const sankeyLayout = d3.sankey()
-            .nodeId(d => d.id)
-            .nodeWidth(16)
-            .nodePadding(nodePadding) // Uses the dynamic variable!
-            .nodeAlign(d3.sankeyLeft)  // Crucial: Keeps 3-level columns aligned from left to right!
-            .extent([
-                [sankeyLeft, 30],
-                [sankeyRight, dynamicHeight - 30]
-            ]);
+        .nodeId(d => d.id)
+        .nodeWidth(16)
+        .nodePadding(nodePadding)
+        .nodeAlign(d3.sankeyLeft)
+        .extent([
+            [sankeyLeft, topMargin],
+            [sankeyRight, dynamicHeight - bottomMargin]
+        ]);
 
 
     // ==========================================
@@ -1405,7 +1414,7 @@ async function updateSankey(selectedGroup = "All") {
 
         const response =
             await fetch(
-                "sankey_diagram.json"
+                "Charts/sankey_diagram.json"
             );
 
 

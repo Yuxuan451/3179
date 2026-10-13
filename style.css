@@ -148,15 +148,27 @@ body {
     margin-top: 40px;
 }
 
+
 /* SANKEY GRAPH */
+
+.sankey-card {
+    display: grid;
+    grid-template-columns: minmax(200px, 260px) minmax(0, 1fr);
+    align-items: start;
+    gap: 24px;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
 
 .sankey-filter {
     display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 0 5px 24px;
-    margin-bottom: 25px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    min-width: 0;
+    padding: 0;
+    margin: 0;
 }
 
 .sankey-filter label {
@@ -166,20 +178,15 @@ body {
 }
 
 .sankey-filter select {
-    min-width: 220px;
-    padding: 11px 38px 11px 14px;
+    width: 100%;
+    max-width: 260px;
+    box-sizing: border-box;
+    padding: 11px 14px;
     border: 1px solid #cbd6cf;
     border-radius: 8px;
-    background: #ffffff;
+    background: #fff;
     color: #24352d;
     font-size: 14px;
-    cursor: pointer;
-}
-
-.sankey-filter select:focus {
-    outline: none;
-    border-color: #527d62;
-    box-shadow: 0 0 0 3px rgba(82, 125, 98, 0.12);
 }
 
 .sankey-filter p {
@@ -189,39 +196,32 @@ body {
     line-height: 1.5;
 }
 
-#sankey_diagram {
+.sankey-chart-area {
+    min-width: 0;
     width: 100%;
-    max-width: 1000px;
-    min-width: 750px;
-    min-height: 600px;
+    overflow: auto;
 }
 
+#sankey_diagram {
+    width: 100%;
+    min-width: 0;
+}
 
-/* MOBILE */
+#sankey_diagram .vega-embed {
+    width: 100%;
+}
+
+#sankey_diagram svg {
+    display: block;
+}
 
 @media (max-width: 900px) {
-
     .sankey-card {
-        padding: 22px;
-    }
-
-    .sankey-filter {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 9px;
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .sankey-filter select {
-        width: 100%;
-        min-width: 0;
-    }
-
-    .sankey-filter p {
-        max-width: 450px;
-    }
-
-    #sankey_diagram {
-        min-width: 650px;
+        max-width: 100%;
     }
 }
 
