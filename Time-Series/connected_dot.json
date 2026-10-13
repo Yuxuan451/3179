@@ -1,0 +1,139 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 750,
+  "height": 450,
+  "title": {
+    "text": "Change in Species Abundance by IUCN Status",
+    "subtitle": "Combined abundance compared between 2000 and 2021",
+    "fontSize": 22,
+    "subtitleFontSize": 14,
+    "anchor": "start"
+  },
+  "data": {
+    "values": []
+  },
+  "layer": [
+    {
+      "mark": {
+        "type": "line",
+        "strokeWidth": 2.5,
+        "color": "#CCCCCC"
+      },
+      "encoding": {
+        "y": {
+          "field": "Status",
+          "type": "nominal",
+          "sort": [
+            "Critically Endangered",
+            "Endangered",
+            "Vulnerable",
+            "Near Threatened",
+            "Least Concern",
+            "Conservation Dependent",
+            "Extinct"
+          ],
+          "axis": {
+            "title": "IUCN Status",
+            "labelFontSize": 11
+          }
+        },
+        "x": {
+          "field": "PctChange",
+          "type": "quantitative",
+          "axis": {
+            "title": "Percentage Change from 2000",
+            "labelExpr": "datum.value + '%'"
+          }
+        },
+        "detail": {
+          "field": "Status",
+          "type": "nominal"
+        },
+        "order": {
+          "field": "Year",
+          "type": "ordinal"
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "rule",
+        "color": "#333333",
+        "strokeDash": [4, 4],
+        "strokeWidth": 1.5
+      },
+      "encoding": {
+        "x": {
+          "datum": 0
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "point",
+        "filled": true,
+        "size": 180,
+        "opacity": 1
+      },
+      "encoding": {
+        "y": {
+          "field": "Status",
+          "type": "nominal",
+          "sort": [
+            "Critically Endangered",
+            "Endangered",
+            "Vulnerable",
+            "Near Threatened",
+            "Least Concern",
+            "Conservation Dependent",
+            "Extinct"
+          ]
+        },
+        "x": {
+          "field": "PctChange",
+          "type": "quantitative"
+        },
+        "color": {
+          "field": "Year",
+          "type": "nominal",
+          "scale": {
+            "domain": [2000, 2021],
+            "range": ["#A0A0A0", "#1F4E79"]
+          },
+          "legend": {
+            "title": "Year"
+          }
+        },
+        "shape": {
+          "field": "Year",
+          "type": "nominal",
+          "legend": null
+        },
+        "tooltip": [
+          {
+            "field": "Status",
+            "type": "nominal",
+            "title": "IUCN Status"
+          },
+          {
+            "field": "Year",
+            "type": "nominal",
+            "title": "Year"
+          },
+          {
+            "field": "Abundance",
+            "type": "quantitative",
+            "title": "Combined Abundance",
+            "format": ","
+          },
+          {
+            "field": "PctChange",
+            "type": "quantitative",
+            "title": "Change from 2000",
+            "format": "+.1f"
+          }
+        ]
+      }
+    }
+  ]
+}
