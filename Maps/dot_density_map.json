@@ -1,0 +1,115 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+
+    "width": "container",
+    "height": 700,
+    "autosize": {
+        "type": "fit",
+        "contains": "padding"
+    },
+
+    "title": {
+        "text": "Distribution of IUCN Status of Threatened Species",
+        "subtitle": "Each dot represents one unique threatened species and differentiate the status of the species by colour",
+        "fontSize": 20,
+        "subtitleFontSize": 12,
+        "anchor": "start"
+    },
+
+    "projection": {
+    "type": "mercator",
+    "center": [133, -27],
+    "scale": 900
+    },
+
+    "layer": [
+        {
+            "data": {
+                "url": "australia-states.json",
+                "format": {
+                    "type": "topojson",
+                    "feature": "ne_10m_admin_1_states_provinces"
+                }
+            },
+
+            "transform": [
+                {
+                    "filter": "datum.properties.iso_3166_2 === 'AU-WA' || datum.properties.iso_3166_2 === 'AU-NT' || datum.properties.iso_3166_2 === 'AU-SA' || datum.properties.iso_3166_2 === 'AU-QLD' || datum.properties.iso_3166_2 === 'AU-NSW' || datum.properties.iso_3166_2 === 'AU-VIC' || datum.properties.iso_3166_2 === 'AU-TAS' || datum.properties.iso_3166_2 === 'AU-ACT'"
+                }
+            ],
+
+            "mark": {
+                "type": "geoshape",
+                "fill": "#e5e5e5",
+                "size": 25,
+                "opacity": 0.65,
+                "stroke": "#ffffff",
+                "strokeWidth": 1.2
+            }
+        },
+
+        {
+            "data": {
+                "values": []
+            },
+
+            "mark": {
+                "type": "circle",
+                "size": 60,
+                "opacity": 0.8
+            },
+
+            "encoding": {
+                "longitude": {
+                    "field": "longitude",
+                    "type": "quantitative"
+                },
+
+                "latitude": {
+                    "field": "latitude",
+                    "type": "quantitative"
+                },
+
+                "color": {
+                    "field": "IUCNStatus",
+                    "type": "nominal",
+                    "title": "IUCN Status",
+                    "scale": {
+                        "domain": [
+                        "Critically Endangered",
+                        "Endangered",
+                        "Vulnerable",
+                        "Near Threatened",
+                        "Least Concern"
+                        ],
+                        "range": [
+                        "#b30000",
+                        "#e6550d",
+                        "#fdae6b",
+                        "#3182bd",
+                        "#555555"
+                        ]
+                    }
+                },
+
+                "tooltip": [
+                    {
+                        "field": "State",
+                        "type": "nominal",
+                        "title": "State / Territory"
+                    },
+                    {
+                        "field": "taxonomic",
+                        "type": "nominal",
+                        "title": "Taxonomic Group"
+                    },
+                    {
+                        "field": "IUCNStatus",
+                        "type": "nominal",
+                        "title": "IUCN Status"
+                    }
+                ]
+            }
+        }
+    ]
+}

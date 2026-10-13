@@ -1,0 +1,107 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+
+    "width": "container",
+    "height": 500,
+    "autosize": {
+        "type": "fit",
+        "contains": "padding"
+    },
+
+
+    "title": {
+        "text": "Distribution of Threatened Taxa Across Australian States",
+        "subtitle": ["The size of each bubble denotes the total number of unique species recorded,", "while the color differentiates the major taxonomic groups, present in each state."],
+        "fontSize": 22,
+        "subtitleFontSize": 14,
+        "anchor": "start"
+    },
+
+    "projection": {
+        "type": "mercator"
+    },
+
+    "layer": [
+        {
+            "data": {
+                "url": "australia-states.json",
+                "format": {
+                    "type": "topojson",
+                    "feature": "ne_10m_admin_1_states_provinces"
+                }
+            },
+
+            "transform": [
+                {
+                    "filter": "datum.properties.iso_3166_2 === 'AU-WA' || datum.properties.iso_3166_2 === 'AU-NT' || datum.properties.iso_3166_2 === 'AU-SA' || datum.properties.iso_3166_2 === 'AU-QLD' || datum.properties.iso_3166_2 === 'AU-NSW' || datum.properties.iso_3166_2 === 'AU-VIC' || datum.properties.iso_3166_2 === 'AU-TAS' || datum.properties.iso_3166_2 === 'AU-ACT'"
+                }
+            ],
+
+            "mark": {
+                "type": "geoshape",
+                "fill": "#f5f5f5",
+                "stroke": "white",
+                "strokeWidth": 1
+            }
+        },
+
+        {
+            "data": {
+                "values": []
+            },
+
+            "mark": {
+                "type": "circle",
+                "opacity": 0.75,
+                "stroke": "white",
+                "strokeWidth": 1
+            },
+
+            "encoding": {
+                "longitude": {
+                    "field": "longitude",
+                    "type": "quantitative"
+                },
+
+                "latitude": {
+                    "field": "latitude",
+                    "type": "quantitative"
+                },
+
+                "size": {
+                    "field": "species_count",
+                    "type": "quantitative",
+                    "title": "Number of species",
+                    "scale": {
+                        "range": [100, 1800]
+                    }
+                },
+
+                "color": {
+                    "field": "taxonomic",
+                    "type": "nominal",
+                    "title": "Taxonomic Group"
+                },
+
+                "tooltip": [
+                    {
+                        "field": "State",
+                        "type": "nominal",
+                        "title": "State / Territory"
+                    },
+                    {
+                        "field": "taxonomic",
+                        "type": "nominal",
+                        "title": "Taxonomic Group"
+                    },
+                    {
+                        "field": "species_count",
+                        "type": "quantitative",
+                        "title": "Number of species",
+                        "format": ","
+                    }
+                ]
+            }
+        }
+    ]
+}

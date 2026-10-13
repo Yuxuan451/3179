@@ -1,0 +1,77 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+
+    "width": "container",
+    "height": 500,
+    "autosize": {
+        "type": "fit",
+        "contains": "padding"
+    },
+
+    "title": {
+        "text": "Threatened species across Australia",
+        "subtitle": "Number of unique threatened species recorded by state and territory",
+        "fontSize": 22,
+        "subtitleFontSize": 14,
+        "anchor": "start"
+    },
+
+    "projection": {"type": "mercator"},
+
+    "layer": [
+        {
+            "data": {
+                "values": "mapData",
+                "format": {
+                    "type": "topojson",
+                    "feature": "ne_10m_admin_1_states_provinces"
+                }
+            },
+            "transform": [
+                {"filter": "datum.properties.iso_3166_2 === 'AU-WA' || datum.properties.iso_3166_2 === 'AU-NT' || datum.properties.iso_3166_2 === 'AU-SA' || datum.properties.iso_3166_2 === 'AU-QLD' || datum.properties.iso_3166_2 === 'AU-NSW' || datum.properties.iso_3166_2 === 'AU-VIC' || datum.properties.iso_3166_2 === 'AU-TAS' || datum.properties.iso_3166_2 === 'AU-ACT'"},
+                {
+                    "lookup": "properties.iso_3166_2",
+                    "from": {
+                        "data": {
+                            "values": "stateCounts"
+                        },
+                        "key": "state_code",
+                        "fields": [
+                            "State",
+                            "species_count"
+                        ]
+                    }
+                }
+            ],
+            "mark": {
+                "type": "geoshape",
+                "stroke": "white",
+                "strokeWidth": 1
+            },
+
+            "encoding": {
+                "color": {
+                    "field": "species_count",
+                    "type": "quantitative",
+                    "title": "Threatened species",
+                    "scale": {
+                        "scheme": "greens"
+                    }
+                },
+                "tooltip": [
+                    {
+                        "field": "State",
+                        "type": "nominal",
+                        "title": "State / Territory"
+                    },
+                    {
+                        "field": "species_count",
+                        "type": "quantitative",
+                        "title": "Threatened species",
+                        "format": ","
+                    }
+                ]
+            }
+        }
+    ]
+}
