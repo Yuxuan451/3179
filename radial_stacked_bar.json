@@ -1,0 +1,152 @@
+{
+    "$schema": "https://vega.github.io/schema/vega/v5.json",
+
+    "width": 500,
+    "height": 500,
+     "autosize": {
+        "type": "fit",
+        "contains": "padding"
+    },
+
+    "title": {
+        "text": "Threatened Species Composition by State",
+        "subtitle": "Each radial bar represents a state; segments represent threatened status",
+        "fontSize": 22,
+        "subtitleFontSize": 14,
+        "anchor": "start",
+        "offset": 20
+    },
+
+    "data": [
+        {
+            "name": "table",
+            "values": []
+        }
+    ],
+
+    "scales": [
+
+        {
+            "name": "theta",
+            "type": "band",
+            "domain": {
+                "data": "table",
+                "field": "State"
+            },
+            "range": [
+                0,
+                6.283185307179586
+            ],
+            "padding": 0.05
+        },
+
+        {
+            "name": "radius",
+            "type": "sqrt",
+            "domain": {
+                "data": "table",
+                "fields": [
+                    "startValue",
+                    "endValue"
+                ]
+            },
+            "range": [
+                0,
+                190
+            ]
+        },
+
+        {
+            "name": "color",
+            "type": "ordinal",
+            "domain": [
+                "Critically Endangered",
+                "Endangered",
+                "Vulnerable",
+                "Conservation Dependent",
+                "Extinct",
+                "Extinct in the wild"
+            ],
+            "range": [
+                "#b2182b",
+                "#ef8a62",
+                "#fddbc7",
+                "#67a9cf",
+                "#2166ac",
+                "#542788"
+            ]
+        }
+    ],
+
+    "marks": [
+
+        {
+            "type": "arc",
+
+            "from": {
+                "data": "table"
+            },
+
+            "encode": {
+
+                "enter": {
+
+                    "fill": {
+                        "scale": "color",
+                        "field": "ThreatStatus"
+                    },
+
+                    "stroke": {
+                        "value": "white"
+                    },
+
+                    "strokeWidth": {
+                        "value": 1
+                    }
+                },
+
+                "update": {
+
+                    "x": {
+                        "signal": "width / 2"
+                    },
+
+                    "y": {
+                        "signal": "(height + 60) / 2"
+                    },
+
+                    "startAngle": {
+                        "signal": "scale('theta', datum.State)"
+                    },
+
+                    "endAngle": {
+                        "signal": "scale('theta', datum.State) + bandwidth('theta')"
+                    },
+
+                    "innerRadius": {
+                        "scale": "radius",
+                        "field": "startValue"
+                    },
+
+                    "outerRadius": {
+                        "scale": "radius",
+                        "field": "endValue"
+                    },
+
+                    "tooltip": {
+                        "signal": "{'State': datum.State, 'Threat Status': datum.ThreatStatus, 'Species Count': datum.species_count}"
+                    }
+                }
+            }
+        }
+
+    ],
+
+    "legends": [
+        {
+            "fill": "color",
+            "title": "Threat Status",
+            "orient": "right"
+        }
+    ]
+}
