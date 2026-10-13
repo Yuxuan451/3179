@@ -1,0 +1,239 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+
+  "width": 500,
+  "height": 500,
+
+  "title": {
+    "text": "Taxonomic Structure of Australia's Threatened Species",
+    "subtitle": "Kingdom → Class → Family → Genus | Segment size represents number of species",
+    "fontSize": 22,
+    "subtitleFontSize": 13,
+    "fontWeight": "bold",
+    "anchor": "start",
+    "offset": 15
+  },
+
+  "signals": [
+    {
+      "name": "radius",
+      "update": "min(width, height) / 2 - 50"
+    },
+
+    {
+      "name": "centerX",
+      "update": "width / 2"
+    },
+
+    {
+      "name": "centerY",
+      "update": "height / 2 + 20"
+    }
+  ],
+
+  "data": [
+    {
+      "name": "table",
+      "values": []
+    },
+
+    {
+      "name": "tree",
+      "source": "table",
+
+      "transform": [
+        {
+          "type": "stratify",
+          "key": "id",
+          "parentKey": "parent"
+        },
+
+        {
+          "type": "partition",
+          "field": "species_count",
+
+          "sort": {
+            "field": "species_count",
+            "order": "descending"
+          },
+
+          "size": [
+            {
+              "signal": "2 * PI"
+            },
+            {
+              "signal": "radius"
+            }
+          ],
+
+          "as": [
+            "a0",
+            "r0",
+            "a1",
+            "r1",
+            "depth",
+            "children"
+          ]
+        }
+      ]
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "color",
+      "type": "ordinal",
+
+      "domain": [
+        "Root",
+        "Kingdom",
+        "Class",
+        "Family",
+        "Genus"
+      ],
+
+      "range": [
+        "#173F5F",
+        "#20639B",
+        "#4F81BD",
+        "#86A9C7",
+        "#C5D7E5"
+      ]
+    }
+  ],
+
+  "marks": [
+
+    {
+      "type": "arc",
+
+      "from": {
+        "data": "tree"
+      },
+
+      "encode": {
+
+        "enter": {
+          "x": {
+            "signal": "centerX"
+          },
+
+          "y": {
+            "signal": "centerY"
+          },
+
+          "stroke": {
+            "value": "white"
+          },
+
+          "strokeWidth": {
+            "value": 0.7
+          }
+        },
+
+        "update": {
+
+          "startAngle": {
+            "field": "a0"
+          },
+
+          "endAngle": {
+            "field": "a1"
+          },
+
+          "innerRadius": {
+            "field": "r0"
+          },
+
+          "outerRadius": {
+            "field": "r1"
+          },
+
+          "fill": {
+            "scale": "color",
+            "field": "level"
+          },
+
+          "fillOpacity": {
+            "value": 0.95
+          },
+
+          "tooltip": {
+            "signal": "{'Taxonomic Level': datum.level, 'Name': datum.name, 'Species Count': datum.species_count}"
+          }
+        },
+
+        "hover": {
+
+          "fillOpacity": {
+            "value": 1
+          },
+
+          "stroke": {
+            "value": "#333333"
+          },
+
+          "strokeWidth": {
+            "value": 1.5
+          }
+        }
+      }
+    },
+
+    {
+      "type": "text",
+
+      "encode": {
+
+        "enter": {
+
+          "x": {
+            "signal": "centerX"
+          },
+
+          "y": {
+            "signal": "centerY"
+          },
+
+          "align": {
+            "value": "center"
+          },
+
+          "baseline": {
+            "value": "middle"
+          },
+
+          "fontSize": {
+            "value": 17
+          },
+
+          "fontWeight": {
+            "value": "bold"
+          },
+
+          "fill": {
+            "value": "#173F5F"
+          }
+        }
+      }
+    }
+  ],
+
+  "config": {
+    "view": {
+      "stroke": null
+    },
+
+    "font": "Arial",
+
+    "title": {
+      "font": "Arial",
+      "fontWeight": "bold"
+    },
+
+    "axis": {
+      "labelFont": "Arial",
+      "titleFont": "Arial"
+    }
+  }
+}
