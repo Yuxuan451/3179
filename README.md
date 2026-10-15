@@ -1,4 +1,4 @@
-# 🇦🇺 Australia's Threatened Species
+# Australia's Threatened Species
 
 An interactive data visualization project exploring Australia's threatened biodiversity through maps, charts, and taxonomic relationships.
 
