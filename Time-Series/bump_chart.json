@@ -52,9 +52,21 @@
         },
 
         "color": {
-          "field": "State",
-          "type": "nominal",
-          "title": "State"
+            "field": "State",
+            "type": "nominal",
+            "title": "State",
+            "scale": {
+                "range": [
+                    "#54278F",
+                    "#756BB1",
+                    "#9E9AC8",
+                    "#BCBDDC",
+                    "#807DBA",
+                    "#6A51A3",
+                    "#9C9EDE",
+                    "#DADAEB"
+                ]
+            }
         },
 
         "detail": {

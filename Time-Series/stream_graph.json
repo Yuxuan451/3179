@@ -42,8 +42,8 @@
           "type": "nominal",
           "title": "Taxonomic Group",
           "scale": {
-            "domain": ["Birds", "Mammals", "Plants", "Amphibians"],
-            "range": ["#0072B2", "#D55E00", "#009E73", "#CC79A7"]
+            "domain": ["Amphibians", "Birds", "Mammals", "Plants"],
+            "range": ["#08519C", "#3182BD", "#6BAED6", "#9ECAE1"]
           }
         },
         "detail": {

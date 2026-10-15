@@ -98,7 +98,7 @@
           "type": "nominal",
           "scale": {
             "domain": [2000, 2021],
-            "range": ["#A0A0A0", "#1F4E79"]
+            "range": ["#B38B35", "#F0E2BD"]
           },
           "legend": {
             "title": "Year"
