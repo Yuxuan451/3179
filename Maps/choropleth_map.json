@@ -1,13 +1,11 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-
   "width": "container",
   "height": 500,
   "autosize": {
     "type": "fit",
     "contains": "padding"
   },
-
   "title": {
     "text": "Threatened species across Australia",
     "subtitle": "Number of unique threatened species recorded by state and territory",
@@ -15,11 +13,9 @@
     "subtitleFontSize": 14,
     "anchor": "start"
   },
-
   "projection": {
     "type": "mercator"
   },
-
   "layer": [
     {
       "data": {
@@ -29,7 +25,6 @@
           "feature": "ne_10m_admin_1_states_provinces"
         }
       },
-
       "transform": [
         {
           "filter": "datum.properties.iso_3166_2 === 'AU-WA' || datum.properties.iso_3166_2 === 'AU-NT' || datum.properties.iso_3166_2 === 'AU-SA' || datum.properties.iso_3166_2 === 'AU-QLD' || datum.properties.iso_3166_2 === 'AU-NSW' || datum.properties.iso_3166_2 === 'AU-VIC' || datum.properties.iso_3166_2 === 'AU-TAS' || datum.properties.iso_3166_2 === 'AU-ACT'"
@@ -43,28 +38,30 @@
             "key": "state_code",
             "fields": [
               "State",
-              "species_count"
+              "species_count",
+              "standardised_count"
             ]
           }
         }
       ],
-
       "mark": {
         "type": "geoshape",
         "stroke": "white",
         "strokeWidth": 1
       },
-
       "encoding": {
         "color": {
-          "field": "species_count",
+          "field": "standardised_count",
           "type": "quantitative",
-          "title": "Threatened species",
+          "title": "Standardised species count",
           "scale": {
-            "scheme": "greens"
+            "domain": [0, 1],
+            "range": ["#edf8e9", "#006d2c"]
+          },
+          "legend": {
+            "format": ".1f"
           }
         },
-
         "tooltip": [
           {
             "field": "State",
@@ -74,36 +71,60 @@
           {
             "field": "species_count",
             "type": "quantitative",
-            "title": "Threatened species",
-            "format": ","
+            "title": "Unique species count"
+          },
+          {
+            "field": "standardised_count",
+            "type": "quantitative",
+            "title": "Standardised count",
+            "format": ".2f"
           }
         ]
       }
     },
-
     {
       "data": {
         "values": [
-          {"state": "Western Australia", "longitude": 122, "latitude": -25},
-          {"state": "Norther Territory", "longitude": 133.5, "latitude": -19},
-          {"state": "South Australia", "longitude": 135, "latitude": -30},
-          {"state": "Queensland", "longitude": 145, "latitude": -21},
-          {"state": "New South Wales", "longitude": 147, "latitude": -32},
-          {"state": "Victoria", "longitude": 145, "latitude": -36.2},
-          {"state": "Tasmania", "longitude": 146.5, "latitude": -42},
-          {"state": "ACT", "longitude": 149.1, "latitude": -35.4}
+          {
+            "state": "Western Australia",
+            "longitude": 122,
+            "latitude": -25
+          },
+          {
+            "state": "Northern Territory",
+            "longitude": 133.5,
+            "latitude": -19
+          },
+          {
+            "state": "South Australia",
+            "longitude": 135,
+            "latitude": -30
+          },
+          {
+            "state": "Queensland",
+            "longitude": 145,
+            "latitude": -21
+          },
+          {
+            "state": "New South Wales",
+            "longitude": 147,
+            "latitude": -32
+          },
+          {
+            "state": "Tasmania",
+            "longitude": 146.5,
+            "latitude": -42
+          }
         ]
       },
-
-        "mark": {
+      "mark": {
         "type": "text",
         "fontSize": 11,
         "fontWeight": "bold",
         "fill": "#24352d",
         "align": "center",
         "baseline": "middle"
-        },
-
+      },
       "encoding": {
         "longitude": {
           "field": "longitude",
@@ -115,6 +136,129 @@
         },
         "text": {
           "field": "state"
+        }
+      }
+    },
+    {
+      "data": {
+        "values": [
+          {
+            "longitude": 149.1,
+            "latitude": -35.4,
+            "longitude2": 153,
+            "latitude2": -39
+          }
+        ]
+      },
+      "mark": {
+        "type": "rule",
+        "stroke": "#24352d",
+        "strokeWidth": 1.2
+      },
+      "encoding": {
+        "longitude": {
+          "field": "longitude",
+          "type": "quantitative"
+        },
+        "latitude": {
+          "field": "latitude",
+          "type": "quantitative"
+        },
+        "longitude2": {
+          "field": "longitude2"
+        },
+        "latitude2": {
+          "field": "latitude2"
+        }
+      }
+    },
+    {
+      "data": {
+        "values": [
+          {
+            "longitude": 153,
+            "latitude": -39,
+            "label": "Australia Capital Territory"
+          }
+        ]
+      },
+      "mark": {
+        "type": "text",
+        "fontSize": 12,
+        "fontWeight": "bold",
+        "fill": "#111111",
+        "align": "left",
+        "baseline": "middle",
+        "dx": 6
+      },
+      "encoding": {
+        "longitude": {
+          "field": "longitude",
+          "type": "quantitative"
+        },
+        "latitude": {
+          "field": "latitude",
+          "type": "quantitative"
+        },
+        "text": {
+          "field": "label"
+        }
+      }
+    },
+    {
+      "data": {
+        "values": [
+          {
+            "longitude": 144.5,
+            "latitude": -37,
+            "longitude2": 140,
+            "latitude2": -42
+          }
+        ]
+      },
+      "mark": {
+        "type": "rule",
+        "stroke": "#24352d",
+        "strokeWidth": 1.2
+      },
+      "encoding": {
+        "longitude": {"field": "longitude", "type": "quantitative"},
+        "latitude": {"field": "latitude", "type": "quantitative"},
+        "longitude2": {"field": "longitude2"},
+        "latitude2": {"field": "latitude2"}
+      }
+    },
+
+    {
+      "data": {
+        "values": [
+          {
+            "longitude": 138,
+            "latitude": -42.5,
+            "label": "Victoria"
+          }
+        ]
+      },
+      "mark": {
+        "type": "text",
+        "fontSize": 12,
+        "fontWeight": "bold",
+        "fill": "#111111",
+        "align": "left",
+        "baseline": "middle",
+        "dx": 6
+      },
+      "encoding": {
+        "longitude": {
+          "field": "longitude",
+          "type": "quantitative"
+        },
+        "latitude": {
+          "field": "latitude",
+          "type": "quantitative"
+        },
+        "text": {
+          "field": "label"
         }
       }
     }

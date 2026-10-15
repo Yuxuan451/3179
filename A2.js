@@ -206,6 +206,24 @@ fetch(TSX)
         // console.log("Species count by state:");
         // console.table(stateCounts);
 
+        const minCount = Math.min(
+            ...stateCounts.map(d => d.species_count)
+        );
+
+        const maxCount = Math.max(
+            ...stateCounts.map(d => d.species_count)
+        );
+
+        stateCounts.forEach(d => {
+            d.standardised_count =
+                maxCount === minCount
+                    ? 0
+                    : (d.species_count - minCount) /
+                    (maxCount - minCount);
+        });
+
+        console.table(stateCounts);
+
         const offsets = {
             "Birds": { lat: 0.8, lon: -0.8 },
             "Mammals": { lat: -0.8, lon: 0.8 },
@@ -275,11 +293,11 @@ fetch(TSX)
             if (!baseVal || baseVal === 0) {
                 return;
             }
-            console.log("Baseline values:");
-            console.table(baselineValues);
+            // console.log("Baseline values:");
+            // console.table(baselineValues);
 
-            console.log("All time series data:");
-            console.table(timeSeriesData);
+            // console.log("All time series data:");
+            // console.table(timeSeriesData);
 
             const pctChange =
                 ((d.Abundance - baseVal) / baseVal);
@@ -292,13 +310,13 @@ fetch(TSX)
 
         });
 
-        console.log("Percentage change data:");
-        console.table(lineChartData);
+        // console.log("Percentage change data:");
+        // console.table(lineChartData);
 
         // SANKEYDIAGRAM
         const sankeyData = Object.values(sankeyCounts);
-        console.log("Sankey data:");
-        console.table(sankeyData);
+        // console.log("Sankey data:");
+        // console.table(sankeyData);
         // const sankeyLinks = [];
         const linkCounts = {};
 
@@ -328,7 +346,7 @@ fetch(TSX)
 
         });
         const sankeyLinks = Object.values(linkCounts);
-        console.table(sankeyLinks);
+        // console.table(sankeyLinks);
 
         // bump chart
         const stateYearData = Object.values(bumpCounts);
@@ -348,7 +366,7 @@ fetch(TSX)
             });
 
         });
-        console.table(bumpChartData);
+        // console.table(bumpChartData);
         createBumpChart(bumpChartData);
 
         //connected dot plot
@@ -385,7 +403,7 @@ fetch(TSX)
 
             });
 
-        console.table(connectedDotPctData);
+        // console.table(connectedDotPctData);
 
         // LOAD MAP
         fetch(MAP_FILE)
@@ -657,9 +675,9 @@ fetch(data_gov)
         //             : 0
         // }));
 
-        console.log("SUNBURST DATA:");
-        console.table(hierarchyNodes);
-        console.log("Number of nodes:", hierarchyNodes.length);
+        // console.log("SUNBURST DATA:");
+        // console.table(hierarchyNodes);
+        // console.log("Number of nodes:", hierarchyNodes.length);
 
         // LOAD MAP
         fetch(MAP_FILE)
@@ -697,7 +715,8 @@ function createMap(stateCounts, proportionalSymbolData, dotDensityData, mapData)
                 key: "state_code",
                 fields: [
                     "State",
-                    "species_count"
+                    "species_count",
+                    "standardised_count"
                 ]
             };
             vegaEmbed("#choropleth_map", spec, {
@@ -1029,17 +1048,17 @@ async function updateSankey(selectedGroup = "All") {
             );
 
 
-    console.log(
-        "Selected Sankey group:",
-        selectedGroup
-    );
+    // console.log(
+    //     "Selected Sankey group:",
+    //     selectedGroup
+    // );
 
-    console.log(
-        "Filtered Sankey rows:",
-        filteredData.length
-    );
+    // console.log(
+    //     "Filtered Sankey rows:",
+    //     filteredData.length
+    // );
 
-    console.table(filteredData);
+    // console.table(filteredData);
 
 
     // ==========================================
@@ -1183,15 +1202,15 @@ async function updateSankey(selectedGroup = "All") {
         Array.from(linkCounts.values());
 
 
-    console.log(
-        "Sankey nodes before layout:",
-        nodes
-    );
+    // console.log(
+    //     "Sankey nodes before layout:",
+    //     nodes
+    // );
 
-    console.log(
-        "Sankey links before layout:",
-        links
-    );
+    // console.log(
+    //     "Sankey links before layout:",
+    //     links
+    // );
 
 
     // ==========================================
@@ -1341,15 +1360,15 @@ async function updateSankey(selectedGroup = "All") {
     }));
 
 
-    console.log(
-        "Final Sankey nodes:",
-        vegaNodes
-    );
+    // console.log(
+    //     "Final Sankey nodes:",
+    //     vegaNodes
+    // );
 
-    console.log(
-        "Final Sankey links:",
-        vegaLinks
-    );
+    // console.log(
+    //     "Final Sankey links:",
+    //     vegaLinks
+    // );
 
 
     // ==========================================
