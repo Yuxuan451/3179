@@ -80,7 +80,16 @@
                 "color": {
                     "field": "taxonomic",
                     "type": "nominal",
-                    "title": "Taxonomic Group"
+                    "title": "Taxonomic Group",
+                    "scale": {
+                        "range": [
+                            "#08519C",
+                            "#3182BD",
+                            "#6BAED6",
+                            "#9ECAE1",
+                            "#C6DBEF"
+                        ]
+                    }
                 },
 
                 "tooltip": [
@@ -102,6 +111,43 @@
                     }
                 ]
             }
-        }
+        },
+                {
+            "data": {
+                "values": [
+                {"state": "Western Australia", "longitude": 122, "latitude": -25},
+                {"state": "Norther Territory", "longitude": 133.5, "latitude": -19},
+                {"state": "South Australia", "longitude": 135, "latitude": -30},
+                {"state": "Queensland", "longitude": 145, "latitude": -21},
+                {"state": "New South Wales", "longitude": 147, "latitude": -32},
+                {"state": "Victoria", "longitude": 145, "latitude": -36.2},
+                {"state": "Tasmania", "longitude": 146.5, "latitude": -42},
+                {"state": "ACT", "longitude": 149.1, "latitude": -35.4}
+                ]
+            },
+
+            "mark": {
+            "type": "text",
+            "fontSize": 11,
+            "fontWeight": "bold",
+            "fill": "#24352d",
+            "align": "center",
+            "baseline": "middle"
+            },
+
+            "encoding": {
+                "longitude": {
+                "field": "longitude",
+                "type": "quantitative"
+                },
+                "latitude": {
+                "field": "latitude",
+                "type": "quantitative"
+                },
+                "text": {
+                "field": "state"
+                }
+            }
+        }  
     ]
 }

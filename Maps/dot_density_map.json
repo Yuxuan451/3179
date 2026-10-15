@@ -83,11 +83,11 @@
                         "Least Concern"
                         ],
                         "range": [
-                        "#b30000",
-                        "#e6550d",
-                        "#fdae6b",
-                        "#3182bd",
-                        "#555555"
+                            "#99000D",
+                            "#D7301F",
+                            "#EF6548",
+                            "#FC8D59",
+                            "#FDBB84"
                         ]
                     }
                 },
@@ -110,6 +110,43 @@
                     }
                 ]
             }
-        }
+        },
+        {
+            "data": {
+                "values": [
+                {"state": "Western Australia", "longitude": 122, "latitude": -25},
+                {"state": "Norther Territory", "longitude": 133.5, "latitude": -19},
+                {"state": "South Australia", "longitude": 135, "latitude": -30},
+                {"state": "Queensland", "longitude": 145, "latitude": -21},
+                {"state": "New South Wales", "longitude": 147, "latitude": -32},
+                {"state": "Victoria", "longitude": 145, "latitude": -36.2},
+                {"state": "Tasmania", "longitude": 146.5, "latitude": -42},
+                {"state": "ACT", "longitude": 149.1, "latitude": -35.4}
+                ]
+            },
+
+            "mark": {
+            "type": "text",
+            "fontSize": 11,
+            "fontWeight": "bold",
+            "fill": "#24352d",
+            "align": "center",
+            "baseline": "middle"
+            },
+
+            "encoding": {
+                "longitude": {
+                "field": "longitude",
+                "type": "quantitative"
+                },
+                "latitude": {
+                "field": "latitude",
+                "type": "quantitative"
+                },
+                "text": {
+                "field": "state"
+                }
+            }
+        }   
     ]
 }
