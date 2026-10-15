@@ -1,11 +1,10 @@
 {
     "$schema": "https://vega.github.io/schema/vega/v5.json",
 
-    "width": 600,
-    "height": 600,
-     "autosize": {
-        "type": "fit",
-        "contains": "padding"
+    "width": 450,
+    "height": 450,
+    "autosize": {
+        "type": "none"
     },
 
     "title": {
@@ -46,17 +45,15 @@
                     },
 
                     "stroke": {
-                        "value": "#a6bddb"
+                        "scale": "nodeColor",
+                        "field": "group"
                     },
-
                     "strokeOpacity": {
                         "value": 0.35
                     },
-
                     "fill": {
-                        "value": "null"
+                        "value": "transparent"
                     }
-
                 },
 
                 "update": {
@@ -101,7 +98,7 @@
 
                         "scale": "nodeColor",
 
-                        "field": "level"
+                        "field": "group"
 
                     },
 
@@ -207,26 +204,23 @@
     ],
 
     "scales": [
-
         {
             "name": "nodeColor",
-
             "type": "ordinal",
-
             "domain": [
-                "group",
-                "family",
-                "genus"
+                "Amphibians",
+                "Mammals",
+                "Birds",
+                "Plants"
             ],
-
             "range": [
-                "#4C78A8",
-                "#72B7B2",
-                "#F2CF5B"
+                "#08519C",
+                "#3182BD",
+                "#6BAED6",
+                "#9ECAE1"
             ]
-
         }
-
     ]
+
 
 }

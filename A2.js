@@ -1050,36 +1050,30 @@ async function updateSankey(selectedGroup = "All") {
     const nodeMap = new Map();
 
 
-    function addNode(name, level) {
-
+    function addNode(name, level, group) {
         name = String(name || "").trim();
-        if (!name) {
-            return null;
-        }
+        if (!name) return null;
 
-
-        const id = `${level}|${name}`;
-
+        // Keep nodes from different taxonomic groups separate
+        const id = level === "group"
+            ? `group|${name}`
+            : `${level}|${group}|${name}`;
 
         if (!nodeMap.has(id)) {
-
             const node = {
-
                 id: id,
-
                 name: name,
-
-                level: level
-
+                level: level,
+                group: group
             };
+
             nodeMap.set(id, node);
             nodes.push(node);
-
         }
-
 
         return id;
     }
+
 
 
     // ==========================================
@@ -1116,14 +1110,9 @@ async function updateSankey(selectedGroup = "All") {
         // CREATE NODES
         // --------------------------------------
 
-        const groupId =
-            addNode(group, "group");
-
-        const orderId =
-            addNode(order, "order");
-
-        const familyId =
-            addNode(family, "family");
+        const groupId = addNode(group, "group", group);
+        const orderId = addNode(order, "order", group);
+        const familyId = addNode(family, "family", group);
 
 
         // --------------------------------------
@@ -1225,72 +1214,40 @@ async function updateSankey(selectedGroup = "All") {
     // 5. COUNT NODES PER COLUMN
     // ==========================================
 
-    const groupCount =
-        nodes.filter(
-            d => d.level === "group"
-        ).length;
+    const groupCount = nodes.filter(d => d.level === "group").length;
+    const orderCount = nodes.filter(d => d.level === "order").length;
+    const familyCount = nodes.filter(d => d.level === "family").length;
 
-    const orderCount =
-        nodes.filter(
-            d => d.level === "order"
-        ).length;
-
-    const familyCount =
-        nodes.filter(
-            d => d.level === "family"
-        ).length;
-
-
-    const maxNodes =
-        Math.max(
-            groupCount,
-            orderCount,
-            familyCount
-        );
+    const maxNodes = Math.max(groupCount, orderCount, familyCount);
 
 
     // ==========================================
     // 6. DYNAMIC HEIGHT
     // ==========================================
 
-    const topMargin = 5;
-    const bottomMargin = 5;
-
-    // Give each node enough vertical space.
-    // The height can grow for dense groups instead
-    // of squeezing every group into 700px.
-    const nodeHeightTarget = 28;
-
-    // const dynamicHeight =
-    //     Math.min(
-    //         500,
-    //         Math.min(
-    //             1800,
-    //             maxNodes * nodeHeightTarget + topMargin + bottomMargin
-    //         )
-    //     );
+    const topMargin = 25;
+    const bottomMargin = 35;
 
     const dynamicHeight = Math.max(
-        400,
-        maxNodes * nodeHeightTarget + topMargin + bottomMargin
+        450,
+        maxNodes * 22 + topMargin + bottomMargin
     );
-
 
     // ==========================================
     // 7. CHART SIZE
     // ==========================================
 
-    const chartWidth = 850;
+    const chartWidth = 700;
 
     // Actual Sankey width
     // Smaller than entire chart so
     // there is equal whitespace around it.
 
 // Keep Sankey centered and compact
-    const sideMargin = 5;
+    const sideMargin = 35;
 
     const sankeyLeft = sideMargin;
-    const sankeyRight = chartWidth - (70*sideMargin);
+    const sankeyRight = chartWidth - sideMargin;
 
 
 // ==========================================
@@ -1300,16 +1257,18 @@ async function updateSankey(selectedGroup = "All") {
     // More nodes = slightly smaller spacing
     // let nodePadding = 14;
 
-    if (maxNodes > 15) {
-        nodePadding = 10;
+    let nodePadding = 12;
+
+    if (maxNodes > 10) {
+        nodePadding = 9;
     }
 
-    if (maxNodes > 25) {
-        nodePadding = 7;
+    if (maxNodes > 20) {
+        nodePadding = 6;
     }
 
-    if (maxNodes > 35) {
-        nodePadding = 5;
+    if (maxNodes > 30) {
+        nodePadding = 4;
     }
 
 
@@ -1320,7 +1279,7 @@ async function updateSankey(selectedGroup = "All") {
         .nodeId(d => d.id)
         .nodeWidth(16)
         .nodePadding(nodePadding)
-        .nodeAlign(d3.sankeyLeft)
+        .nodeAlign(d3.sankeyJustify)
         .extent([
             [sankeyLeft, topMargin],
             [sankeyRight, dynamicHeight - bottomMargin]
@@ -1351,67 +1310,35 @@ async function updateSankey(selectedGroup = "All") {
     // 10. PREPARE VEGA NODES
     // ==========================================
 
-    const vegaNodes =
-        graph.nodes.map(node => ({
-
-            id: node.id,
-
-            name: node.name,
-
-            level: node.level,
-
-            x0: node.x0,
-
-            x1: node.x1,
-
-            y0: node.y0,
-
-            y1: node.y1,
-
-            nodeHeight:
-                node.y1 - node.y0
-
-        }));
+    const vegaNodes = graph.nodes.map(node => ({
+        id: node.id,
+        name: node.name,
+        level: node.level,
+        group: node.group,
+        x0: node.x0,
+        x1: node.x1,
+        y0: node.y0,
+        y1: node.y1,
+        nodeHeight: node.y1 - node.y0
+    }));
 
 
     // ==========================================
     // 11. PREPARE VEGA LINKS
     // ==========================================
 
-    const vegaLinks =
-        graph.links.map(link => ({
-
-            source:
-                link.source.id,
-
-            target:
-                link.target.id,
-
-            value:
-                link.value,
-
-            x0:
-                link.source.x1,
-
-            x1:
-                link.target.x0,
-
-            y0:
-                link.y0,
-
-            y1:
-                link.y1,
-
-            width:
-                Math.max(
-                    1,
-                    link.width
-                ),
-
-            path:
-                d3.sankeyLinkHorizontal()(link)
-
-        }));
+    const vegaLinks = graph.links.map(link => ({
+        source: link.source.id,
+        target: link.target.id,
+        value: link.value,
+        group: link.source.group,
+        x0: link.source.x1,
+        x1: link.target.x0,
+        y0: link.y0,
+        y1: link.y1,
+        width: Math.max(1, link.width),
+        path: d3.sankeyLinkHorizontal()(link)
+    }));
 
 
     console.log(
