@@ -80,26 +80,24 @@
   ],
 
   "scales": [
-    {
-      "name": "color",
-      "type": "ordinal",
-
-      "domain": [
-        "Root",
-        "Kingdom",
-        "Class",
-        "Family",
-        "Genus"
-      ],
-
-      "range": [
-        "#173F5F",
-        "#20639B",
-        "#4F81BD",
-        "#86A9C7",
-        "#C5D7E5"
-      ]
-    }
+      {
+          "name": "color",
+          "type": "ordinal",
+          "domain": [
+              "Root",
+              "Kingdom",
+              "Class",
+              "Family",
+              "Genus"
+          ],
+          "range": [
+              "#005F60",
+              "#008C95",
+              "#40A6A6",
+              "#80C5C1",
+              "#C2E3DF"
+          ]
+      }
   ],
 
   "marks": [
@@ -150,8 +148,7 @@
           },
 
           "fill": {
-            "scale": "color",
-            "field": "level"
+              "signal": "datum.group === 'Animals' ? (datum.level === 'Kingdom' ? '#006D75' : datum.level === 'Class' ? '#008C95' : datum.level === 'Family' ? '#40A6A6' : '#80C5C1') : datum.group === 'Plants' ? (datum.level === 'Kingdom' ? '#AD245F' : datum.level === 'Class' ? '#D45087' : datum.level === 'Family' ? '#E783AC' : '#F2BFD3') : '#808080'"
           },
 
           "fillOpacity": {
