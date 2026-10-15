@@ -938,51 +938,56 @@ let sankeyView = null;
 // is handled by updateSankey().
 // ==========================================
 
+
 function createSankey(sankeyData) {
 
-    // Store the complete Sankey dataset
+    // ==========================================
+    // 1. STORE DATA
+    // ==========================================
+
     rawSankeyData = sankeyData;
 
-    console.log("Sankey raw data:");
-    console.table(rawSankeyData);
+    console.log("Sankey raw data:", rawSankeyData);
 
 
     // ==========================================
-    // INITIAL DISPLAY
-    // ==========================================
-
-    updateSankey("All");
-
-
-    // ==========================================
-    // TAXONOMIC GROUP FILTER
+    // 2. GET FILTER
     // ==========================================
 
     const filter =
         document.getElementById("taxonomicFilter");
 
-    if (filter) {
+    if (!filter) {
+        console.warn("taxonomicFilter element was not found.");
+        return;
+    }
+
+
+    // ==========================================
+    // 3. REGISTER LISTENER ONLY ONCE
+    // ==========================================
+
+    if (filter.dataset.sankeyListenerAttached !== "true") {
 
         filter.addEventListener("change", function () {
 
             const selectedGroup = this.value;
 
-            console.log(
-                "Sankey selected group:",
-                selectedGroup
-            );
+            console.log("Sankey selected group:", selectedGroup);
 
             updateSankey(selectedGroup);
 
         });
 
-    } else {
-
-        console.warn(
-            "taxonomicFilter element was not found."
-        );
-
+        filter.dataset.sankeyListenerAttached = "true";
     }
+
+
+    // ==========================================
+    // 4. INITIAL DISPLAY
+    // ==========================================
+
+    updateSankey(filter.value);
 }
 
 
@@ -993,10 +998,16 @@ function createSankey(sankeyData) {
 // calculates the D3 Sankey layout and
 // renders the result in Vega.
 // ==========================================
-
+let sankeyRenderId = 0;
 
 async function updateSankey(selectedGroup = "All") {
 
+
+    // ==========================================
+    // 0. PREVENT OUTDATED RENDERS
+    // ==========================================
+
+    const currentRenderId = ++sankeyRenderId;
 
     // ==========================================
     // 1. FILTER DATA
@@ -1035,7 +1046,6 @@ async function updateSankey(selectedGroup = "All") {
     function addNode(name, level) {
 
         name = String(name || "").trim();
-
         if (!name) {
             return null;
         }
@@ -1055,10 +1065,7 @@ async function updateSankey(selectedGroup = "All") {
                 level: level
 
             };
-
-
             nodeMap.set(id, node);
-
             nodes.push(node);
 
         }
@@ -1239,22 +1246,27 @@ async function updateSankey(selectedGroup = "All") {
     // 6. DYNAMIC HEIGHT
     // ==========================================
 
-    const topMargin = 30;
-    const bottomMargin = 40;
+    const topMargin = 5;
+    const bottomMargin = 5;
 
     // Give each node enough vertical space.
     // The height can grow for dense groups instead
     // of squeezing every group into 700px.
     const nodeHeightTarget = 28;
 
-    const dynamicHeight =
-        Math.min(
-            500,
-            Math.min(
-                1800,
-                maxNodes * nodeHeightTarget + topMargin + bottomMargin
-            )
-        );
+    // const dynamicHeight =
+    //     Math.min(
+    //         500,
+    //         Math.min(
+    //             1800,
+    //             maxNodes * nodeHeightTarget + topMargin + bottomMargin
+    //         )
+    //     );
+
+    const dynamicHeight = Math.max(
+        400,
+        maxNodes * nodeHeightTarget + topMargin + bottomMargin
+    );
 
 
     // ==========================================
@@ -1268,10 +1280,10 @@ async function updateSankey(selectedGroup = "All") {
     // there is equal whitespace around it.
 
 // Keep Sankey centered and compact
-    const sideMargin = 100;
+    const sideMargin = 5;
 
     const sankeyLeft = sideMargin;
-    const sankeyRight = chartWidth - sideMargin;
+    const sankeyRight = chartWidth - (70*sideMargin);
 
 
 // ==========================================
@@ -1279,7 +1291,7 @@ async function updateSankey(selectedGroup = "All") {
 // ==========================================
 
     // More nodes = slightly smaller spacing
-    let nodePadding = 14;
+    // let nodePadding = 14;
 
     if (maxNodes > 15) {
         nodePadding = 10;
@@ -1494,28 +1506,14 @@ async function updateSankey(selectedGroup = "All") {
         // ======================================
         // 17. RENDER
         // ======================================
+        if (currentRenderId !== sankeyRenderId) {
+            return;
+        }
 
-        await vegaEmbed(
-
-            "#sankey_diagram",
-
-            spec,
-
-            {
-
-                actions: false,
-
-                renderer: "svg"
-
-            }
-
-        );
+        await vegaEmbed("#sankey_diagram",spec,{actions: false, renderer: "svg"});
 
 
-        console.log(
-            "Sankey successfully displayed:",
-            selectedGroup
-        );
+        console.log("Sankey successfully displayed:", selectedGroup);
 
 
     } catch (error) {
