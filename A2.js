@@ -441,13 +441,14 @@ fetch(data_gov)
         const radialCounts = {};
         const sunburstNodes = new Map();
 
-        function addSunburstNode(id, parent, name, level) {
+        function addSunburstNode(id, parent, name, level, group=null) {
             if (!sunburstNodes.has(id)) {
                 sunburstNodes.set(id, {
                     id: id,
                     parent: parent,
                     name: name,
                     level: level,
+                    group: group,
                     species: new Set()
                 });
             }
@@ -524,7 +525,8 @@ fetch(data_gov)
                 "root",
                 null,
                 "Australia",
-                "Root"
+                "Root",
+                "All"
             );
 
             // KINGDOM
@@ -534,7 +536,8 @@ fetch(data_gov)
                 kingdomId,
                 "root",
                 kingdom,
-                "Kingdom"
+                "Kingdom",
+                group
             );
 
             // CLASS
@@ -544,7 +547,8 @@ fetch(data_gov)
                 classId,
                 kingdomId,
                 className,
-                "Class"
+                "Class",
+                group
             );
 
             // FAMILY
@@ -554,7 +558,8 @@ fetch(data_gov)
                 familyId,
                 classId,
                 family,
-                "Family"
+                "Family",
+                group
             );
 
             // GENUS
@@ -565,7 +570,8 @@ fetch(data_gov)
                 genusId,
                 familyId,
                 genus,
-                "Genus"
+                "Genus",
+                group
             );
 
             // Add species to EVERY ancestor
@@ -635,6 +641,7 @@ fetch(data_gov)
             parent: d.parent,
             name: d.name,
             level: d.level,
+            group: d.group,
             species_count: d.species.size
         }));
 
