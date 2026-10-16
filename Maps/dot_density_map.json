@@ -40,11 +40,9 @@
 
             "mark": {
                 "type": "geoshape",
-                "fill": "#e5e5e5",
-                "size": 25,
-                "opacity": 0.65,
-                "stroke": "#ffffff",
-                "strokeWidth": 1.2
+                "fill": "#f4f4f4",
+                "stroke": "#333333",
+                "strokeWidth": 1
             }
         },
 
@@ -119,11 +117,10 @@
                 {"state": "South Australia", "longitude": 135, "latitude": -30},
                 {"state": "Queensland", "longitude": 145, "latitude": -21},
                 {"state": "New South Wales", "longitude": 147, "latitude": -32},
-                {"state": "Victoria", "longitude": 145, "latitude": -36.2},
-                {"state": "Tasmania", "longitude": 146.5, "latitude": -42},
-                {"state": "ACT", "longitude": 149.1, "latitude": -35.4}
+                {"state": "Tasmania", "longitude": 146.5, "latitude": -42}
                 ]
             },
+
 
             "mark": {
             "type": "text",
@@ -133,7 +130,6 @@
             "align": "center",
             "baseline": "middle"
             },
-
             "encoding": {
                 "longitude": {
                 "field": "longitude",
@@ -147,6 +143,129 @@
                 "field": "state"
                 }
             }
-        }   
+        },
+        {
+            "data": {
+                "values": [
+                {
+                    "longitude": 149.1,
+                    "latitude": -35.4,
+                    "longitude2": 152,
+                    "latitude2": -39
+                }
+                ]
+            },
+            "mark": {
+                "type": "rule",
+                "stroke": "#24352d",
+                "strokeWidth": 1.2
+            },
+            "encoding": {
+                "longitude": {
+                "field": "longitude",
+                "type": "quantitative"
+                },
+                "latitude": {
+                "field": "latitude",
+                "type": "quantitative"
+                },
+                "longitude2": {
+                "field": "longitude2"
+                },
+                "latitude2": {
+                "field": "latitude2"
+                }
+            }
+        },
+        {
+            "data": {
+                "values": [
+                {
+                    "longitude": 151,
+                    "latitude": -39.5,
+                    "label": "ACT"
+                }
+                ]
+            },
+            "mark": {
+                "type": "text",
+                "fontSize": 12,
+                "fontWeight": "bold",
+                "fill": "#111111",
+                "align": "left",
+                "baseline": "middle",
+                "dx": 6
+            },
+            "encoding": {
+                "longitude": {
+                "field": "longitude",
+                "type": "quantitative"
+                },
+                "latitude": {
+                "field": "latitude",
+                "type": "quantitative"
+                },
+                "text": {
+                "field": "label"
+                }
+            }
+        },
+        {
+            "data": {
+                "values": [
+                {
+                    "longitude": 144.5,
+                    "latitude": -37,
+                    "longitude2": 140,
+                    "latitude2": -42
+                }
+                ]
+            },
+            "mark": {
+                "type": "rule",
+                "stroke": "#24352d",
+                "strokeWidth": 1.2
+            },
+            "encoding": {
+                "longitude": {"field": "longitude", "type": "quantitative"},
+                "latitude": {"field": "latitude", "type": "quantitative"},
+                "longitude2": {"field": "longitude2"},
+                "latitude2": {"field": "latitude2"}
+            }
+        },
+
+        {
+            "data": {
+                "values": [
+                {
+                    "longitude": 138,
+                    "latitude": -42.5,
+                    "label": "Victoria"
+                }
+                ]
+            },
+            "mark": {
+                "type": "text",
+                "fontSize": 12,
+                "fontWeight": "bold",
+                "fill": "#111111",
+                "align": "left",
+                "baseline": "middle",
+                "dx": 6
+            },
+            "encoding": {
+                "longitude": {
+                "field": "longitude",
+                "type": "quantitative"
+                },
+                "latitude": {
+                "field": "latitude",
+                "type": "quantitative"
+                },
+                "text": {
+                "field": "label"
+                }
+            }
+        }
     ]
 }
