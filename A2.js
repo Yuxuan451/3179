@@ -456,7 +456,7 @@ fetch(data_gov)
         // const speciesByStateStatus = {};
         const stateColumns = ["ACT","NSW", "NT", "QLD", "SA","TAS","VIC","WA"];
         const kingdomCounts = {};
-        const radialCounts = {};
+        const normalCounts = {};
         const sunburstNodes = new Map();
 
         function addSunburstNode(id, parent, name, level, group=null) {
@@ -526,16 +526,16 @@ fetch(data_gov)
                     // Add unique species
                     kingdomCounts[kingdomkey].species.add(species);
 
-                    // radial stacked bar 
-                    if (!radialCounts[state]) {
-                        radialCounts[state] = {};
+                    // normal stacked bar 
+                    if (!normalCounts[state]) {
+                        normalCounts[state] = {};
                     }
 
-                    if (!radialCounts[state][status]) {
-                        radialCounts[state][status] = new Set();
+                    if (!normalCounts[state][status]) {
+                        normalCounts[state][status] = new Set();
                     }
 
-                    radialCounts[state][status].add(species);
+                    normalCounts[state][status].add(species);
                             }
                         });
             // ROOT
@@ -623,7 +623,7 @@ fetch(data_gov)
         }));
         // console.table(tornadochartData);
 
-        const radialStatusOrder = [
+        const normalStatusOrder = [
             "Critically Endangered",
             "Endangered",
             "Vulnerable",
@@ -631,19 +631,26 @@ fetch(data_gov)
             "Extinct",
             "Extinct in the wild"
         ];
-        const radialStackedData = [];
+        const normalStackedData = [];
         stateColumns.forEach(state => {
+            // Calculate total species for this state
+            const total = normalStatusOrder.reduce((sum, status) => {
+                return sum + (normalCounts[state]?.[status]?.size || 0);
+            }, 0);
+
+            if (total === 0) return;
             let cumulative = 0;
-            radialStatusOrder.forEach(status => {
-                const count =
-                    radialCounts[state]?.[status]?.size || 0;
+            normalStatusOrder.forEach(status => {
+                const count = normalCounts[state]?.[status]?.size || 0;
                 if (count === 0) return;
+                const percentage = (count / total) * 100;
                 const startValue = cumulative;
-                const endValue = cumulative + count;
-                radialStackedData.push({
+                const endValue = cumulative + percentage;
+                normalStackedData.push({
                     State: state,
                     ThreatStatus: status,
                     species_count: count,
+                    percentage: percentage,
                     startValue: startValue,
                     endValue: endValue
                 });
@@ -651,8 +658,8 @@ fetch(data_gov)
             });
         });
 
-        // console.log("Radial stacked data:");
-        // console.table(radialStackedData);
+        // console.log("normal stacked data:");
+        // console.table(normalStackedData);
 
         const hierarchyNodes = Array.from(sunburstNodes.values()).map(d => ({
             id: d.id,
@@ -660,7 +667,8 @@ fetch(data_gov)
             name: d.name,
             level: d.level,
             group: d.group,
-            species_count: d.species.size
+            species_count: d.species.size,
+            leafValue: d.level === "Genus" ? d.species.size : 0
         }));
 
         // const hierarchyNodes = Array.from(sunburstNodes.values()).map(d => ({
@@ -684,7 +692,7 @@ fetch(data_gov)
             .then(response => response.json())
             .then(mapData => {
                 // createheatMap(heatmapData, mapData);
-                createChart(tornadochartData, radialStackedData, hierarchyNodes)
+                createChart(tornadochartData, normalStackedData, hierarchyNodes)
             })
             .catch(error => {
                 console.error("Error loading australia-states.json:", error);
@@ -789,10 +797,9 @@ function createMap(stateCounts, proportionalSymbolData, dotDensityData, mapData)
 //     .catch(error => {
 //         console.error("Error loading heatmap.json:", error);
 //     });
-
 // }
 
-function createChart(tornadochartData, radialStackedData, hierarchyNodes) {
+function createChart(tornadochartData, normalStackedData, hierarchyNodes) {
 
     fetch("Charts/tornado_chart.json")
         .then(response => response.json())
@@ -804,27 +811,27 @@ function createChart(tornadochartData, radialStackedData, hierarchyNodes) {
             console.error("tornado chart error:", error);
         });
 
-    fetch("Charts/radial_stacked_bar.json")
+    fetch("Charts/normal_stacked_bar.json")
         .then(response => response.json())
         .then(spec => {
 
-            spec.data[0].values = radialStackedData;
+            spec.data[0].values = normalStackedData;
 
-            vegaEmbed("#radial_stacked_bar", spec, {
+            vegaEmbed("#normal_stacked_bar", spec, {
                 actions: false,
                 renderer: "svg"
             })
             .then(() => {
-                console.log("Radial stacked bar successfully displayed.");
+                console.log("normal stacked bar successfully displayed.");
             })
             .catch(error => {
-                console.error("Radial stacked bar Vega error:", error);
+                console.error("normal stacked bar Vega error:", error);
             });
 
         })
         .catch(error => {
             console.error(
-                "Error loading radial_stacked_bar.json:",
+                "Error loading normal_stacked_bar.json:",
                 error
             );
         });
@@ -834,6 +841,35 @@ function createChart(tornadochartData, radialStackedData, hierarchyNodes) {
             .then(spec => {
 
                 spec.data[0].values = hierarchyNodes;
+
+                // Check root and kingdom counts
+                const root = hierarchyNodes.find(
+                    d => d.id === "root"
+                );
+
+                const kingdoms = hierarchyNodes.filter(
+                    d => d.parent === "root"
+                );
+
+                console.log(
+                    "Root species count:",
+                    root?.species_count
+                );
+
+                console.table(
+                    kingdoms.map(d => ({
+                        kingdom: d.name,
+                        species_count: d.species_count
+                    }))
+                );
+
+                console.log(
+                    "Sum of kingdom counts:",
+                    kingdoms.reduce(
+                        (sum, d) => sum + d.species_count,
+                        0
+                    )
+                );
 
                 vegaEmbed("#sunburst", spec, {
                     actions: false,

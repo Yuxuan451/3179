@@ -1,0 +1,155 @@
+
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "width": 850,
+  "height": 500,
+  "autosize": {
+    "type": "fit",
+    "contains": "padding"
+  },
+  "padding": {
+    "left": 20,
+    "right": 180,
+    "top": 20,
+    "bottom": 50
+  },
+  "title": {
+    "text": "Threatened Species Composition by State",
+    "subtitle": "100% stacked bars show the proportion of each threatened status within each state",
+    "fontSize": 22,
+    "subtitleFontSize": 14,
+    "anchor": "start",
+    "offset": 20
+  },
+  "data": [
+    {
+      "name": "table",
+      "values": []
+    }
+  ],
+  "scales": [
+    {
+      "name": "x",
+      "type": "band",
+      "domain": {
+        "data": "table",
+        "field": "State"
+      },
+      "range": "width",
+      "padding": 0.15
+    },
+    {
+      "name": "y",
+      "type": "linear",
+      "domain": [0, 100],
+      "range": "height",
+      "nice": false,
+      "zero": true
+    },
+    {
+      "name": "color",
+      "type": "ordinal",
+      "domain": [
+        "Critically Endangered",
+        "Endangered",
+        "Vulnerable",
+        "Conservation Dependent",
+        "Extinct",
+        "Extinct in the wild"
+      ],
+      "range": [
+        "#99000D",
+        "#D7301F",
+        "#EF6548",
+        "#FC8D59",
+        "#FDBB84",
+        "#FEE0B6"
+      ]
+    }
+  ],
+  "axes": [
+    {
+      "orient": "bottom",
+      "scale": "x",
+      "title": "State or Territory",
+      "labelAngle": -35,
+      "labelFontSize": 11,
+      "titleFontSize": 12
+    },
+    {
+      "orient": "left",
+      "scale": "y",
+      "title": "Percentage of Threatened Species (%)",
+      "values": [0, 20, 40, 60, 80, 100],
+      "grid": true,
+      "labelExpr": "datum.value + '%'",
+      "titleFontSize": 12
+    }
+  ],
+  "marks": [
+    {
+      "type": "rect",
+      "from": {
+        "data": "table"
+      },
+      "encode": {
+        "enter": {
+          "fill": {
+            "scale": "color",
+            "field": "ThreatStatus"
+          },
+          "stroke": {
+            "value": "white"
+          },
+          "strokeWidth": {
+            "value": 0.5
+          }
+        },
+        "update": {
+          "x": {
+            "scale": "x",
+            "field": "State"
+          },
+          "width": {
+            "scale": "x",
+            "band": 1
+          },
+          "y": {
+            "scale": "y",
+            "field": "endValue"
+          },
+          "y2": {
+            "scale": "y",
+            "field": "startValue"
+          },
+          "tooltip": {
+            "signal": "{'State': datum.State, 'Threat Status': datum.ThreatStatus, 'Species Count': datum.species_count, 'Percentage': format(datum.percentage, '.1f') + '%'}"
+          }
+        }
+      }
+    }
+  ],
+  "legends": [
+    {
+      "fill": "color",
+      "title": "Threat Status",
+      "orient": "right",
+      "labelLimit": 160,
+      "titleFontSize": 12,
+      "labelFontSize": 11
+    }
+  ],
+  "config": {
+    "view": {
+      "stroke": null
+    },
+    "font": "Arial",
+    "axis": {
+      "labelFont": "Arial",
+      "titleFont": "Arial",
+      "gridColor": "#E5E5E5",
+      "domainColor": "#999999",
+      "tickColor": "#999999"
+    }
+  }
+}
