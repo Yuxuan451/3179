@@ -85,36 +85,12 @@
     {
       "data": {
         "values": [
-          {
-            "state": "Western Australia",
-            "longitude": 122,
-            "latitude": -25
-          },
-          {
-            "state": "Northern Territory",
-            "longitude": 133.5,
-            "latitude": -19
-          },
-          {
-            "state": "South Australia",
-            "longitude": 135,
-            "latitude": -30
-          },
-          {
-            "state": "Queensland",
-            "longitude": 145,
-            "latitude": -21
-          },
-          {
-            "state": "New South Wales",
-            "longitude": 147,
-            "latitude": -32
-          },
-          {
-            "state": "Tasmania",
-            "longitude": 146.5,
-            "latitude": -42
-          }
+        {"state": "WA","longitude": 122,"latitude": -25},
+        {"state": "NT","longitude": 133.5,"latitude": -19},
+        {"state": "SA","longitude": 135,"latitude": -30},
+        {"state": "QLD","longitude": 145,"latitude": -21},
+        {"state": "NSW","longitude": 147,"latitude": -32},
+        {"state": "TAS","longitude": 146.5,"latitude": -42}
         ]
       },
       "mark": {
@@ -178,7 +154,7 @@
           {
             "longitude": 153,
             "latitude": -39,
-            "label": "Australia Capital Territory"
+            "label": "ACT"
           }
         ]
       },
@@ -235,7 +211,7 @@
           {
             "longitude": 138,
             "latitude": -42.5,
-            "label": "Victoria"
+            "label": "VIC"
           }
         ]
       },
