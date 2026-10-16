@@ -40,23 +40,19 @@
     {
       "name": "tree",
       "source": "table",
-
       "transform": [
         {
           "type": "stratify",
           "key": "id",
           "parentKey": "parent"
         },
-
         {
           "type": "partition",
-          "field": "species_count",
-
+          "field": "leafValue",
           "sort": {
             "field": "species_count",
             "order": "descending"
           },
-
           "size": [
             {
               "signal": "2 * PI"
@@ -65,7 +61,6 @@
               "signal": "radius"
             }
           ],
-
           "as": [
             "a0",
             "r0",
