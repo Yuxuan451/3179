@@ -17,11 +17,7 @@ fetch(TSX)
 
         // Get the first worksheet
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-        // Convert Excel worksheet into JavaScript objects
         const data = XLSX.utils.sheet_to_json(worksheet);
-        // console.log("Excel loaded:");
-        // console.log(data);
-
         const speciesByState = {};
         const stateCentroids = {};
         const statetaxonomicCounts = {};
@@ -33,6 +29,18 @@ fetch(TSX)
         const sankeyCounts = {};
         const statusYearCounts = {};
         const bumpCounts = {};
+        const statusRanks = {
+            "Least Concern": 1,
+            "Near Threatened": 2,
+            "Conservation Dependent": 3,
+            "Vulnerable": 4,
+            "Endangered": 5,
+            "Critically Endangered": 6,
+            "Extinct in the Wild": 7,
+            "Extinct": 8
+        };
+
+        const speciesMap = new Map();
 
         for (let year = 2000; year <= 2021; year++) {
             years.push(String(year));
@@ -184,6 +192,43 @@ fetch(TSX)
                     Family: family,
                     Species: species
                 };
+            }
+
+            if (!speciesMap.has(species)) {
+                speciesMap.set(species, {
+                    Binomial: species,
+                    TaxonomicGroup: taxonomic,
+                    MaxStatus: status,
+                    States: new Set(),
+                    Regions: new Set()
+                });
+            }
+
+            const s = speciesMap.get(species);
+
+            // Keep the existing group where available
+            if (!s.TaxonomicGroup && taxonomic) {
+                s.TaxonomicGroup = taxonomic;
+            }
+
+            // Accumulate all states and regions
+            if (state && state !== "Commonwealth") {
+                s.States.add(state);
+            }
+
+            const selectedregion =
+                String(row.Region || "").trim();
+
+            if (selectedregion) {
+                s.Regions.add(selectedregion);
+            }
+
+            // Keep the most severe recorded status
+            const oldRank = statusRanks[s.MaxStatus] || 0;
+            const newRank = statusRanks[status] || 0;
+
+            if (newRank > oldRank) {
+                s.MaxStatus = status;
             }
         });
 
@@ -405,6 +450,51 @@ fetch(TSX)
 
         // console.table(connectedDotPctData);
 
+    // BEESWARM DATA
+     const beeswarmData = [...speciesMap.values()]
+            .filter(d =>
+                statusRanks[d.MaxStatus] !== undefined &&
+                d.States.size > 0
+            )
+            .map(d => ({
+                species: d.Binomial,
+                group: d.TaxonomicGroup,
+                status: d.MaxStatus,
+                statusRank: statusRanks[d.MaxStatus] - 1,
+                stateCount: d.States.size,
+                regionCount: d.Regions.size
+            }));
+
+        // Create vertical offsets for overlapping dots
+        const buckets = new Map();
+
+        beeswarmData.forEach(d => {
+            const key = `${d.status}|${d.stateCount}`;
+
+            if (!buckets.has(key)) {
+                buckets.set(key, []);
+            }
+
+            buckets.get(key).push(d);
+        });
+
+
+        buckets.forEach(items => {
+            items.forEach((d, i) => {
+                const step = 0.13;
+
+                d.swarmY =
+                    d.statusRank +
+                    (i === 0
+                        ? 0
+                        : Math.ceil(i / 2) *
+                          step *
+                          (i % 2 === 1 ? 1 : -1));
+            });
+        });
+
+        console.log("Beeswarm species:", beeswarmData.length);
+        console.table(beeswarmData.slice(0, 10));
         // LOAD MAP
         fetch(MAP_FILE)
             .then(response => response.json())
@@ -413,6 +503,7 @@ fetch(TSX)
                 createBumpChart(bumpChartData);
                 createTimeGraph(lineChartData, connectedDotPctData);
                 createSankey(sankeyData);
+                createbeesworm(beeswarmData)
                 const taxonomicFilter = document.getElementById("taxonomicFilter");
                 taxonomicFilter.addEventListener("change", function () {
 
@@ -837,61 +928,61 @@ function createChart(tornadochartData, normalStackedData, hierarchyNodes) {
         });
 
     fetch("Charts/sunburst.json")
-            .then(response => response.json())
-            .then(spec => {
+        .then(response => response.json())
+        .then(spec => {
 
-                spec.data[0].values = hierarchyNodes;
+            spec.data[0].values = hierarchyNodes;
 
-                // Check root and kingdom counts
-                const root = hierarchyNodes.find(
-                    d => d.id === "root"
-                );
+            // Check root and kingdom counts
+            const root = hierarchyNodes.find(
+                d => d.id === "root"
+            );
 
-                const kingdoms = hierarchyNodes.filter(
-                    d => d.parent === "root"
-                );
+            const kingdoms = hierarchyNodes.filter(
+                d => d.parent === "root"
+            );
 
-                console.log(
-                    "Root species count:",
-                    root?.species_count
-                );
+            console.log(
+                "Root species count:",
+                root?.species_count
+            );
 
-                console.table(
-                    kingdoms.map(d => ({
-                        kingdom: d.name,
-                        species_count: d.species_count
-                    }))
-                );
+            console.table(
+                kingdoms.map(d => ({
+                    kingdom: d.name,
+                    species_count: d.species_count
+                }))
+            );
 
-                console.log(
-                    "Sum of kingdom counts:",
-                    kingdoms.reduce(
-                        (sum, d) => sum + d.species_count,
-                        0
-                    )
-                );
+            console.log(
+                "Sum of kingdom counts:",
+                kingdoms.reduce(
+                    (sum, d) => sum + d.species_count,
+                    0
+                )
+            );
 
-                vegaEmbed("#sunburst", spec, {
-                    actions: false,
-                    renderer: "svg"
-                })
-                .then(() => {
-                    console.log("Sunburst successfully displayed.");
-                })
-                .catch(error => {
-                    console.error(
-                        "Sunburst Vega error:",
-                        error
-                    );
-                });
-
+            vegaEmbed("#sunburst", spec, {
+                actions: false,
+                renderer: "svg"
+            })
+            .then(() => {
+                console.log("Sunburst successfully displayed.");
             })
             .catch(error => {
                 console.error(
-                    "Error loading sunburst.json:",
+                    "Sunburst Vega error:",
                     error
                 );
             });
+
+        })
+        .catch(error => {
+            console.error(
+                "Error loading sunburst.json:",
+                error
+            );
+        });
 }
 
 function createTimeGraph(lineChartData, connectedDotPctData) {
@@ -940,49 +1031,45 @@ function createBumpChart(bumpChartData) {
         .then(response => response.json())
         .then(spec => {
 
-            // ==========================================
-            // INSERT BUMP CHART DATA
-            // ==========================================
-
-            if (!spec.data) {
-                spec.data = {};
-            }
-
+            if (!spec.data) {spec.data = {};}
             spec.data.values = bumpChartData;
-
-
-            // ==========================================
-            // RENDER
-            // ==========================================
-
-            vegaEmbed(
-                "#bump_chart",
-                spec,
+            vegaEmbed("#bump_chart",spec,
                 {
                     actions: false,
                     renderer: "svg"
                 }
             )
-            .then(() => {
-                console.log(
-                    "Bump chart successfully displayed."
-                );
-            })
-            .catch(error => {
-                console.error(
-                    "Bump chart Vega error:",
-                    error
-                );
-            });
+            .then(() => {console.log("Bump chart successfully displayed."); })
+            .catch(error => {console.error("Bump chart Vega error:",error);});
 
         })
-        .catch(error => {
-            console.error(
-                "Error loading bump_chart.json:",
-                error
-            );
-        });
+        .catch(error => {console.error( "Error loading bump_chart.json:",error);});
 }
+
+
+function createbeesworm(beeswarmData) {
+   fetch("Charts/beeswarm.json")
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Failed to load beeswarm.json");
+        }
+        return response.json();
+    })
+    .then(spec => {
+        spec.data = {
+            values: beeswarmData
+        };
+
+        return vegaEmbed("#beeswarmChart", spec, {
+            actions: false
+        });
+    })
+    .catch(error => {
+        console.error("Beeswarm chart error:", error);
+    });
+}
+
+
 
 // ==========================================
 // SANKEY GLOBAL VARIABLES
