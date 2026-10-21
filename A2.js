@@ -35,15 +35,6 @@ fetch(TSX)
             "Endangered": 5,
             "Critically Endangered": 6
         };
-
-        const statusOrder = [
-            "Least Concern",
-            "Near Threatened",
-            "Conservation Dependent",
-            "Vulnerable",
-            "Endangered",
-            "Critically Endangered"
-        ];
         const speciesMap = new Map();
 
         for (let year = 2000; year <= 2021; year++) {
@@ -61,19 +52,7 @@ fetch(TSX)
             const lat = Number(row.RegionCentroidLatitude);
             const lon = Number(row.RegionCentroidLongitude);
 
-
-            // Ignore invalid rows and Commonwealth total
-            if (
-                !taxonomic ||
-                !order ||
-                !family ||
-                !genus ||
-                !species ||
-                !state ||
-                !status ||
-                state === "Commonwealth" ||
-                !Number.isFinite(lat) ||
-                !Number.isFinite(lon)
+            if (!taxonomic ||!order ||!family ||!genus ||!species ||!state ||!status ||state === "Commonwealth" ||!Number.isFinite(lat) ||!Number.isFinite(lon)
             ){
                 return
             };
@@ -107,7 +86,6 @@ fetch(TSX)
 
             // dot species
             const dotkey = `${state}|${species}`;
-
             if (!dotSpecies[dotkey]) {
                 dotSpecies[dotkey] = {
                     State: state,
@@ -130,7 +108,6 @@ fetch(TSX)
             statetstatusCounts[statuskey].species.add(species);
 
             const baseVal = Number(row["2000"]);
-
             // Cannot calculate percentage change
             // if species has no 2000 abundance
             if (!Number.isFinite(baseVal) || baseVal === 0) {
@@ -138,9 +115,7 @@ fetch(TSX)
             }
             years.forEach(year => {
                 const value = row[year];
-                // Keep actual 0 values
                 if (value !== undefined &&value !== null &&value !== "") {
-
                     const abundance = Number(value);
                     if (Number.isFinite(abundance)) {
                         const timekey = `${taxonomic}|${year}`;
@@ -154,11 +129,11 @@ fetch(TSX)
                         timeSeriesCounts[timekey].Abundance += abundance;
                     }
                 }
-
                 const abundance = Number(row[year]);
                 if (!Number.isFinite(abundance)) {
                     return;
                 }
+                // bump chart
                 const bumpkey = `${state}|${year}`;
                 if (!bumpCounts[bumpkey]) {
                     bumpCounts[bumpkey] = {
@@ -187,7 +162,7 @@ fetch(TSX)
             });
             
 
-            // Remove duplicate species
+            // Sankey Diagram: Remove duplicate species
             const sankeykey = `${taxonomic}|${order}|${family}|${species}`;
             if (!sankeyCounts[sankeykey]) {
                 sankeyCounts[sankeykey] = {
@@ -197,7 +172,6 @@ fetch(TSX)
                     Species: species
                 };
             }
-
             if (!speciesMap.has(species)) {
                 speciesMap.set(species, {
                     Binomial: species,
@@ -207,256 +181,193 @@ fetch(TSX)
                     Regions: new Set()
                 });
             }
-
             const s = speciesMap.get(species);
 
             // Keep the existing group where available
             if (!s.TaxonomicGroup && taxonomic) {
                 s.TaxonomicGroup = taxonomic;
             }
-
             // Accumulate all states and regions
             if (state && state !== "Commonwealth") {
                 s.States.add(state);
             }
-
-            const selectedregion =
-                String(row.Region || "").trim();
-
+            const selectedregion = String(row.Region || "").trim();
             if (selectedregion) {
                 s.Regions.add(selectedregion);
             }
-
             // Keep the most severe recorded status
             const oldRank = statusRanks[s.MaxStatus] || 0;
             const newRank = statusRanks[status] || 0;
-
             if (newRank > oldRank) {
                 s.MaxStatus = status;
             }
-
-
         });
 
-        const stateCodeMap = {
-            "Western Australia": "AU-WA",
-            "Northern Territory": "AU-NT",
-            "South Australia": "AU-SA",
-            "Queensland": "AU-QLD",
-            "New South Wales": "AU-NSW",
-            "Victoria": "AU-VIC",
-            "Tasmania": "AU-TAS",
-            "Australian Capital Territory": "AU-ACT"
-        };
+    // ===============================================================================
+    //CHOROPLETH MAP
+    const stateCodeMap = {
+        "Western Australia": "AU-WA",
+        "Northern Territory": "AU-NT",
+        "South Australia": "AU-SA",
+        "Queensland": "AU-QLD",
+        "New South Wales": "AU-NSW",
+        "Victoria": "AU-VIC",
+        "Tasmania": "AU-TAS",
+        "Australian Capital Territory": "AU-ACT"
+    };
+    const stateCounts = Object.entries(speciesByState).map(([state, speciesSet]) => ({
+        State: state,
+        state_code: stateCodeMap[state],
+        species_count: speciesSet.size
+    }));
+    const minCount = Math.min(...stateCounts.map(d => d.species_count));
+    const maxCount = Math.max(...stateCounts.map(d => d.species_count));
+    stateCounts.forEach(d => {
+        d.standardised_count =
+            maxCount === minCount
+                ? 0
+                : (d.species_count - minCount) /
+                (maxCount - minCount);
+    });
 
-        const stateCounts = Object.entries(speciesByState).map(([state, speciesSet]) => ({
-            State: state,
-            state_code: stateCodeMap[state],
-            species_count: speciesSet.size
-        }));
-        // console.log("Species count by state:");
-        // console.table(stateCounts);
+    // ===============================================================================
+    // PROPORTIONAL SYMBOL MAP
+    const proportionalSymbolData = Object.values(statetaxonomicCounts).map(d => {
+    const offsets = {
+        "Birds": { lat: 0.8, lon: -0.8 },
+        "Mammals": { lat: -0.8, lon: 0.8 },
+        "Amphibians": { lat: -0.8, lon: -0.8 },
+        "Plants": { lat: 0.8, lon: 0.8 }
+    };
+    const offset = offsets[d.taxonomic] || { lat: 0, lon: 0 };
+    return {
+        State: d.State,
+        taxonomic: d.taxonomic,
+        species_count: d.species.size,
+        latitude: d.latitude + offset.lat,
+        longitude: d.longitude + offset.lon
+    }});
 
-        const minCount = Math.min(
-            ...stateCounts.map(d => d.species_count)
-        );
+    // ===============================================================================
+    // DOT DENSITY MAP
+    const dotDensityData = Object.values(dotSpecies);
+    dotDensityData.forEach(d => {
+        if (!dotsByState[d.State]) {
+            dotsByState[d.State] = [];
+        }
+        dotsByState[d.State].push(d);
+    });
+    Object.values(dotsByState).forEach(stateDots => {
+        stateDots.forEach((d, i) => {
+            const angle = i * 137.5;
+            const radius = 0.15 + ((i % 8) * 0.04);
+            const angleRad = angle * Math.PI / 180;
+            d.longitude += Math.cos(angleRad) * radius;
+            d.latitude += Math.sin(angleRad) * radius;
+        });
+    });
 
-        const maxCount = Math.max(
-            ...stateCounts.map(d => d.species_count)
-        );
-
-        stateCounts.forEach(d => {
-            d.standardised_count =
-                maxCount === minCount
-                    ? 0
-                    : (d.species_count - minCount) /
-                    (maxCount - minCount);
+    // ===============================================================================
+    // STREAM GRAPH
+    const timeSeriesData = Object.values(timeSeriesCounts);
+    const lineChartData = [];
+    const BASE_YEAR = 2000;
+    // Store abundance in 2000 for each taxonomic group
+    const baselineValues = {};
+    timeSeriesData.forEach(d => {
+        if (d.Year === BASE_YEAR) {
+            baselineValues[d.TaxonomicGroup] = d.Abundance;
+        }
+    });
+    // Calculate percentage change from 2000
+    timeSeriesData.forEach(d => {
+        const baseVal = baselineValues[d.TaxonomicGroup];
+        if (!baseVal || baseVal === 0) {
+            return;
+        }
+        const pctChange =((d.Abundance - baseVal) / baseVal);
+        lineChartData.push({
+            Year: d.Year,
+            TaxonomicGroup: d.TaxonomicGroup,
+            PctChange: pctChange
         });
 
-        console.table(stateCounts);
+    });
 
-        const offsets = {
-            "Birds": { lat: 0.8, lon: -0.8 },
-            "Mammals": { lat: -0.8, lon: 0.8 },
-            "Amphibians": { lat: -0.8, lon: -0.8 },
-            "Plants": { lat: 0.8, lon: 0.8 }
-        };
+    // ===============================================================================
+    // SANKEY DIAGRAM
+    const sankeyData = Object.values(sankeyCounts);
+    const linkCounts = {};
+    sankeyData.forEach(d => {
+        // Taxonomic Group → Family
+        const groupFamily =`${d.Taxonomic}|${d.Order}`;
+        if (!linkCounts[groupFamily]) {
+            linkCounts[groupFamily] = {
+                source: d.Taxonomic,
+                target: d.Order,
+                value: 0
+            };
+        }
+        linkCounts[groupFamily].value++;
+        // Family → Genus
+        const familyGenus =`${d.Order}|${d.Family}`;
+        if (!linkCounts[familyGenus]) {
+            linkCounts[familyGenus] = {
+                source: d.Order,
+                target: d.Family,
+                value: 0
+            };
+        }
+        linkCounts[familyGenus].value++;
+    });
 
-        
-        const proportionalSymbolData = Object.values(statetaxonomicCounts).map(d => {
-        
-        const offset = offsets[d.taxonomic] || { lat: 0, lon: 0 };
-        return {
-            
-            State: d.State,
-            taxonomic: d.taxonomic,
-            species_count: d.species.size,
-            latitude: d.latitude + offset.lat,
-            longitude: d.longitude + offset.lon
-        }});
-        // console.table(proportionalSymbolData);
-
-
-        const dotDensityData = Object.values(dotSpecies);
-        // console.log("Dot density data:");
-        // console.table(dotDensityData);
-        dotDensityData.forEach(d => {
-
-            if (!dotsByState[d.State]) {
-                dotsByState[d.State] = [];
-            }
-
-            dotsByState[d.State].push(d);
-        });
-        Object.values(dotsByState).forEach(stateDots => {
-
-            stateDots.forEach((d, i) => {
-
-                const angle = i * 137.5;
-                const radius = 0.15 + ((i % 8) * 0.04);
-                const angleRad = angle * Math.PI / 180;
-
-                d.longitude += Math.cos(angleRad) * radius;
-                d.latitude += Math.sin(angleRad) * radius;
-            });
-        });
-
-        const timeSeriesData = Object.values(timeSeriesCounts);
-        const lineChartData = [];
-        const BASE_YEAR = 2000;
-        // Store abundance in 2000 for each taxonomic group
-        const baselineValues = {};
-
-        timeSeriesData.forEach(d => {
-            if (d.Year === BASE_YEAR) {
-                baselineValues[d.TaxonomicGroup] = d.Abundance;
-            }
-
-        });
-
-
-        // Calculate percentage change from 2000
-        timeSeriesData.forEach(d => {
-
-            const baseVal = baselineValues[d.TaxonomicGroup];
-
-            // Ignore groups with no valid baseline
-            if (!baseVal || baseVal === 0) {
-                return;
-            }
-            // console.log("Baseline values:");
-            // console.table(baselineValues);
-
-            // console.log("All time series data:");
-            // console.table(timeSeriesData);
-
-            const pctChange =
-                ((d.Abundance - baseVal) / baseVal);
-
-            lineChartData.push({
+    // ===============================================================================
+    // BUMP CHART
+    const stateYearData = Object.values(bumpCounts);
+    const bumpChartData = [];
+    years.forEach(year => {
+        const yearData = stateYearData
+            .filter(d => d.Year === Number(year))
+            .sort((a, b) => b.Abundance - a.Abundance);
+        yearData.forEach((d, index) => {
+            bumpChartData.push({
+                State: d.State,
                 Year: d.Year,
-                TaxonomicGroup: d.TaxonomicGroup,
-                PctChange: pctChange
+                Abundance: d.Abundance,
+                Rank: index + 1
             });
+        });
+    });
+    createBumpChart(bumpChartData);
 
+    // ===============================================================================
+    //CONNECTED DOT PLOT
+    const connectedDotData = Object.values(statusYearCounts);
+    const statusBaselines = {};
+    connectedDotData.forEach(d => {
+        if (d.Year === 2000) {
+            statusBaselines[d.Status] = d.Abundance;
+        }
+    });
+    const connectedDotPctData = connectedDotData
+        .filter(d => {
+            const baseline = statusBaselines[d.Status];
+            return baseline !== undefined &&
+                baseline !== 0;
+        })
+        .map(d => {
+            const baseline = statusBaselines[d.Status];
+            return {
+                Status: d.Status,
+                Year: d.Year,
+                Abundance: d.Abundance,
+                PctChange:
+                    ((d.Abundance - baseline) / baseline) * 100
+            };
         });
 
-        // console.log("Percentage change data:");
-        // console.table(lineChartData);
-
-        // SANKEYDIAGRAM
-        const sankeyData = Object.values(sankeyCounts);
-        // console.log("Sankey data:");
-        // console.table(sankeyData);
-        // const sankeyLinks = [];
-        const linkCounts = {};
-
-        sankeyData.forEach(d => {
-
-            // Taxonomic Group → Family
-            const groupFamily =`${d.Taxonomic}|${d.Order}`;
-            if (!linkCounts[groupFamily]) {
-                linkCounts[groupFamily] = {
-                    source: d.Taxonomic,
-                    target: d.Order,
-                    value: 0
-                };
-            }
-            linkCounts[groupFamily].value++;
-
-            // Family → Genus
-            const familyGenus =`${d.Order}|${d.Family}`;
-            if (!linkCounts[familyGenus]) {
-                linkCounts[familyGenus] = {
-                    source: d.Order,
-                    target: d.Family,
-                    value: 0
-                };
-            }
-            linkCounts[familyGenus].value++;
-
-        });
-        const sankeyLinks = Object.values(linkCounts);
-        // console.table(sankeyLinks);
-
-        // bump chart
-        const stateYearData = Object.values(bumpCounts);
-        const bumpChartData = [];
-        years.forEach(year => {
-            const yearData = stateYearData
-                .filter(d => d.Year === Number(year))
-                .sort((a, b) => b.Abundance - a.Abundance);
-
-            yearData.forEach((d, index) => {
-                bumpChartData.push({
-                    State: d.State,
-                    Year: d.Year,
-                    Abundance: d.Abundance,
-                    Rank: index + 1
-                });
-            });
-
-        });
-        // console.table(bumpChartData);
-        createBumpChart(bumpChartData);
-
-        //connected dot plot
-        const connectedDotData = Object.values(statusYearCounts);
-        const statusBaselines = {};
-
-        connectedDotData.forEach(d => {
-
-            if (d.Year === 2000) {
-                statusBaselines[d.Status] = d.Abundance;
-            }
-
-        });
-        const connectedDotPctData = connectedDotData
-            .filter(d => {
-
-                const baseline = statusBaselines[d.Status];
-
-                return baseline !== undefined &&
-                    baseline !== 0;
-
-            })
-            .map(d => {
-
-                const baseline = statusBaselines[d.Status];
-
-                return {
-                    Status: d.Status,
-                    Year: d.Year,
-                    Abundance: d.Abundance,
-                    PctChange:
-                        ((d.Abundance - baseline) / baseline) * 100
-                };
-
-            });
-
-        // console.table(connectedDotPctData);
-
-    // BEESWARM DATA
+    // ===============================================================================
+    // BEESWARM PLOT
      const beeswarmData = [...speciesMap.values()]
             .filter(d =>
                 statusRanks[d.MaxStatus] !== undefined &&
@@ -473,32 +384,19 @@ fetch(TSX)
 
         // Create vertical offsets for overlapping dots
         const buckets = new Map();
-
         beeswarmData.forEach(d => {
             const key = `${d.status}|${d.stateCount}`;
-
             if (!buckets.has(key)) {
                 buckets.set(key, []);
             }
-
             buckets.get(key).push(d);
         });
-
-
         buckets.forEach(items => {
             items.forEach((d, i) => {
                 const step = 0.13;
-
-                d.swarmY =
-                    d.statusRank +
-                    (i === 0
-                        ? 0
-                        : Math.ceil(i / 2) *
-                          step *
-                          (i % 2 === 1 ? 1 : -1));
+                d.swarmY = d.statusRank +(i === 0? 0: Math.ceil(i / 2) *step *(i % 2 === 1 ? 1 : -1));
             });
         });
-
         console.log("Beeswarm species:", beeswarmData.length);
         console.table(beeswarmData.slice(0, 10));
 
@@ -513,18 +411,8 @@ fetch(TSX)
                 createbeesworm(beeswarmData)
                 const taxonomicFilter = document.getElementById("taxonomicFilter");
                 taxonomicFilter.addEventListener("change", function () {
-
                     const selectedGroup = this.value;
-
-                    console.log(
-                        "Selected taxonomic group:",
-                        selectedGroup
-                    );
-
-                    createSankey(
-                        sankeyData,
-                        selectedGroup
-                    );
+                    createSankey(sankeyData,selectedGroup);
                 });
             })
             .catch(error => {
@@ -535,28 +423,20 @@ fetch(TSX)
             console.error("Error loading CSV:", error);
         });
 
+// ===============================================================================
 // DATA.GOV DATASET
 fetch(data_gov)
     .then(response => response.arrayBuffer())
     .then(arrayBuffer => {
-
-        const workbook = XLSX.read(arrayBuffer, {
-            type: "array"
-        });
-
-        // Get the first worksheet
+        const workbook = XLSX.read(arrayBuffer, {type: "array"});
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-        // Convert Excel worksheet into JavaScript objects
         const data = XLSX.utils.sheet_to_json(worksheet);
-        // console.log("Excel loaded:");
-        // console.log(data);
-
-        // const speciesByStateStatus = {};
         const stateColumns = ["ACT","NSW", "NT", "QLD", "SA","TAS","VIC","WA"];
         const kingdomCounts = {};
         const normalCounts = {};
         const sunburstNodes = new Map();
 
+        //SUNBURST ADD NODE FUNCTION
         function addSunburstNode(id, parent, name, level, group=null) {
             if (!sunburstNodes.has(id)) {
                 sunburstNodes.set(id, {
@@ -568,7 +448,6 @@ fetch(data_gov)
                     species: new Set()
                 });
             }
-
             return sunburstNodes.get(id);
         }
 
@@ -579,13 +458,12 @@ fetch(data_gov)
             const className = String(row["Class"] || "").trim();
             const family = String(row["Family"] || "").trim();
             const genus = String(row["Genus"] || "").trim();
-            // Ignore incomplete rows
+            
             if (!species || !status || !kingdom || !className ||!family ||!genus) {
                 return;
             }
-
-            let group;
             // group animal and platns together
+            let group;
             if (kingdom === "Animalia") {
                 group = "Animals";
             } else if (kingdom === "Plantae") {
@@ -594,25 +472,11 @@ fetch(data_gov)
                 return;
             }
 
-
             // Check each Australian state
             stateColumns.forEach(state => {
                 const value = String(row[state] || "").trim();
-                // Only count if species occurs in state
                 if (value.toLowerCase() === "yes") {
-
-                    // const key =`${state}|${status}`;
-                    // // state + status combination
-                    // if (!speciesByStateStatus[key]) {
-                    //     speciesByStateStatus[key] = {
-                    //         State: state,
-                    //         ThreatStatus: status,
-                    //         species: new Set()
-                    //     };
-                    // }
-                    // // Add unique species
-                    // speciesByStateStatus[key].species.add(species);
-
+                    // TORNADO CHART DATA
                     const kingdomkey = `${state}|${group}`;
                     if (!kingdomCounts[kingdomkey]) {
                                 kingdomCounts[kingdomkey] = {
@@ -621,106 +485,47 @@ fetch(data_gov)
                                     species: new Set()
                                 };
                             }
-                    // Add unique species
                     kingdomCounts[kingdomkey].species.add(species);
 
-                    // normal stacked bar 
+                    // NORMAL STACKED BAR DATA 
                     if (!normalCounts[state]) {
                         normalCounts[state] = {};
                     }
-
                     if (!normalCounts[state][status]) {
                         normalCounts[state][status] = new Set();
                     }
-
                     normalCounts[state][status].add(species);
-                            }
-                        });
-            // ROOT
-            const root = addSunburstNode(
-                "root",
-                null,
-                "Australia",
-                "Root",
-                "All"
-            );
+                }
+                });
 
-            // KINGDOM
+
+            // SUNBURST NODE (ROOT -> KINGDOM -> CLASS -> GENUS)
+            const root = addSunburstNode("root",null,"Australia","Root","All");
             const kingdomId = `kingdom|${kingdom}`;
-
-            const kingdomNode = addSunburstNode(
-                kingdomId,
-                "root",
-                kingdom,
-                "Kingdom",
-                group
-            );
-
-            // CLASS
+            const kingdomNode = addSunburstNode(kingdomId,"root", kingdom,"Kingdom", group);
             const classId = `class|${kingdom}|${className}`;
-
-            const classNode = addSunburstNode(
-                classId,
-                kingdomId,
-                className,
-                "Class",
-                group
-            );
-
-            // FAMILY
+            const classNode = addSunburstNode(classId, kingdomId, className, "Class", group);
             const familyId = `family|${kingdom}|${className}|${family}`;
-
-            const familyNode = addSunburstNode(
-                familyId,
-                classId,
-                family,
-                "Family",
-                group
-            );
-
-            // GENUS
-            const genusId =
-                `genus|${kingdom}|${className}|${family}|${genus}`;
-
-            const genusNode = addSunburstNode(
-                genusId,
-                familyId,
-                genus,
-                "Genus",
-                group
-            );
-
+            const familyNode = addSunburstNode(familyId, classId, family, "Family", group);
+            const genusId =`genus|${kingdom}|${className}|${family}|${genus}`;
+            const genusNode = addSunburstNode(genusId, familyId, genus, "Genus", group);
             // Add species to EVERY ancestor
             root.species.add(species);
             kingdomNode.species.add(species);
             classNode.species.add(species);
             familyNode.species.add(species);
             genusNode.species.add(species);
-
-    
         });
-
-        // const heatmapData = Object.values(speciesByStateStatus).map(d => {
-        // return {
-        //     State: d.State,
-        //     ThreatStatus: d.ThreatStatus,
-        //     species_count: d.species.size
-        // }});
-        // // console.table(heatmapData);
-
+        
+        // TORNADO CHART
         const tornadochartData = Object.values(kingdomCounts).map(d => ({
             State: d.State,
             group: d.group,
-
-            // Animals go to the left
-            // Plants go to the right
-            species_count:
-                d.group === "Animals"
-                    ? -d.species.size
-                    : d.species.size
+            // Animals go to the left, Plants go to the right
+            species_count: d.group === "Animals"? -d.species.size: d.species.size
         }));
-        // console.table(tornadochartData);
 
+        //NORMAL STACKED BAR CHART
         const normalStatusOrder = [
             "Critically Endangered",
             "Endangered",
@@ -731,11 +536,9 @@ fetch(data_gov)
         ];
         const normalStackedData = [];
         stateColumns.forEach(state => {
-            // Calculate total species for this state
             const total = normalStatusOrder.reduce((sum, status) => {
                 return sum + (normalCounts[state]?.[status]?.size || 0);
             }, 0);
-
             if (total === 0) return;
             let cumulative = 0;
             normalStatusOrder.forEach(status => {
@@ -756,9 +559,7 @@ fetch(data_gov)
             });
         });
 
-        // console.log("normal stacked data:");
-        // console.table(normalStackedData);
-
+        //  SUNBURST DIAGRAM
         const hierarchyNodes = Array.from(sunburstNodes.values()).map(d => ({
             id: d.id,
             parent: d.parent,
@@ -769,27 +570,10 @@ fetch(data_gov)
             leafValue: d.level === "Genus" ? d.species.size : 0
         }));
 
-        // const hierarchyNodes = Array.from(sunburstNodes.values()).map(d => ({
-        //     id: d.id,
-        //     parent: d.parent,
-        //     name: d.name,
-        //     level: d.level,
-
-        //     species_count:
-        //         d.level === "Genus"
-        //             ? d.species.size
-        //             : 0
-        // }));
-
-        // console.log("SUNBURST DATA:");
-        // console.table(hierarchyNodes);
-        // console.log("Number of nodes:", hierarchyNodes.length);
-
         // LOAD MAP
         fetch(MAP_FILE)
             .then(response => response.json())
             .then(mapData => {
-                // createheatMap(heatmapData, mapData);
                 createChart(tornadochartData, normalStackedData, hierarchyNodes)
             })
             .catch(error => {
@@ -799,6 +583,7 @@ fetch(data_gov)
         .catch(error => {
             console.error("Error loading CSV:", error);
         });
+
 
 // ==========================================
 // CREATE MAP FUNCTION
@@ -876,119 +661,42 @@ function createMap(stateCounts, proportionalSymbolData, dotDensityData, mapData)
         });
 }
 
-// HEATMAP
-// function createheatMap(heatmapData, mapData) {
-//     fetch("heatmap.json")
-//     .then(response => response.json())
-//     .then(spec => {
-
-//         spec.data.values = heatmapData;
-//         vegaEmbed("#heatmap", spec,{actions: false})
-//         .then(() => {
-//             console.log("Heatmap successfully displayed.");
-//         })
-//         .catch(error => {
-//             console.error("Vega-Lite error:");
-//             console.error(error);
-//         });
-//     })
-//     .catch(error => {
-//         console.error("Error loading heatmap.json:", error);
-//     });
-// }
-
 function createChart(tornadochartData, normalStackedData, hierarchyNodes) {
-
     fetch("Charts/tornado_chart.json")
         .then(response => response.json())
         .then(spec => {
             spec.data.values = tornadochartData;
             vegaEmbed("#tornado_chart",spec,{actions: false});
         })
-        .catch(error => {
-            console.error("tornado chart error:", error);
+        .catch(error => {console.error("tornado chart error:", error);
         });
 
     fetch("Charts/normal_stacked_bar.json")
         .then(response => response.json())
         .then(spec => {
-
             spec.data[0].values = normalStackedData;
-
             vegaEmbed("#normal_stacked_bar", spec, {
                 actions: false,
                 renderer: "svg"
             })
-            .then(() => {
-                console.log("normal stacked bar successfully displayed.");
-            })
-            .catch(error => {
-                console.error("normal stacked bar Vega error:", error);
-            });
-
+            .then(() => {console.log("normal stacked bar successfully displayed.");})
+            .catch(error => {console.error("normal stacked bar Vega error:", error);});
         })
-        .catch(error => {
-            console.error(
-                "Error loading normal_stacked_bar.json:",
-                error
-            );
+        .catch(error => {console.error("Error loading normal_stacked_bar.json:",error);
         });
 
     fetch("Charts/sunburst.json")
         .then(response => response.json())
         .then(spec => {
-
             spec.data[0].values = hierarchyNodes;
-
-            // Check root and kingdom counts
-            const root = hierarchyNodes.find(
-                d => d.id === "root"
-            );
-
-            const kingdoms = hierarchyNodes.filter(
-                d => d.parent === "root"
-            );
-
-            console.log(
-                "Root species count:",
-                root?.species_count
-            );
-
-            console.table(
-                kingdoms.map(d => ({
-                    kingdom: d.name,
-                    species_count: d.species_count
-                }))
-            );
-
-            console.log(
-                "Sum of kingdom counts:",
-                kingdoms.reduce(
-                    (sum, d) => sum + d.species_count,
-                    0
-                )
-            );
-
             vegaEmbed("#sunburst", spec, {
                 actions: false,
                 renderer: "svg"
             })
-            .then(() => {
-                console.log("Sunburst successfully displayed.");
-            })
-            .catch(error => {
-                console.error(
-                    "Sunburst Vega error:",
-                    error
-                );
-            });
-
+            .then(() => {console.log("Sunburst successfully displayed.");})
+            .catch(error => {console.error("Sunburst Vega error:",error);});
         })
-        .catch(error => {
-            console.error(
-                "Error loading sunburst.json:",
-                error
-            );
+        .catch(error => {console.error("Error loading sunburst.json:",error);
         });
 }
 
@@ -996,7 +704,6 @@ function createTimeGraph(lineChartData, connectedDotPctData) {
     fetch("Time-Series/stream_graph.json")
         .then(response => response.json())
         .then(spec => {
-            // Insert aggregated time-series data
             spec.data.values = lineChartData;
             vegaEmbed("#stream_graph",spec,{ actions: false });
         })
@@ -1006,29 +713,16 @@ function createTimeGraph(lineChartData, connectedDotPctData) {
     fetch("Time-Series/connected_dot.json")
         .then(response => response.json())
         .then(spec => {
-
             spec.data.values = connectedDotPctData;
-
             vegaEmbed("#connected_dot", spec, {
                 actions: false,
                 renderer: "svg"
             })
-            .then(() => {
-                console.log("Connected dot plot successfully displayed.");
-            })
-            .catch(error => {
-                console.error(
-                    "Connected dot plot Vega error:",
-                    error
-                );
-            });
+            .then(() => {console.log("Connected dot plot successfully displayed.");})
+            .catch(error => {console.error("Connected dot plot Vega error:",error);});
 
         })
-        .catch(error => {
-            console.error(
-                "Error loading connected_dot_plot.json:",
-                error
-            );
+        .catch(error => {console.error("Error loading connected_dot_plot.json:",error);
         });
 }
 
@@ -1037,22 +731,17 @@ function createBumpChart(bumpChartData) {
     fetch("Time-Series/bump_chart.json")
         .then(response => response.json())
         .then(spec => {
-
             if (!spec.data) {spec.data = {};}
             spec.data.values = bumpChartData;
-            vegaEmbed("#bump_chart",spec,
-                {
+            vegaEmbed("#bump_chart",spec,{
                     actions: false,
                     renderer: "svg"
-                }
-            )
+            })
             .then(() => {console.log("Bump chart successfully displayed."); })
             .catch(error => {console.error("Bump chart Vega error:",error);});
-
         })
         .catch(error => {console.error( "Error loading bump_chart.json:",error);});
 }
-
 
 function createbeesworm(beeswarmData) {
    fetch("Charts/beeswarm.json")
@@ -1063,112 +752,45 @@ function createbeesworm(beeswarmData) {
         return response.json();
     })
     .then(spec => {
-        spec.data = {
-            values: beeswarmData
-        };
-
+        spec.data = {values: beeswarmData};
         return vegaEmbed("#beeswarmChart", spec, {
             actions: false
         });
     })
-    .catch(error => {
-        console.error("Beeswarm chart error:", error);
+    .catch(error => {console.error("Beeswarm chart error:", error);
     });
 }
 
 
-
 // ==========================================
-// SANKEY GLOBAL VARIABLES
-// ==========================================
-
+// CREATE SANKEY 
 let rawSankeyData = [];
 let sankeyView = null;
-
-
-// ==========================================
-// CREATE SANKEY
-// ==========================================
-// This function only prepares the data.
-// The actual filtering and visualisation
-// is handled by updateSankey().
-// ==========================================
-
-
 function createSankey(sankeyData) {
-
-    // ==========================================
-    // 1. STORE DATA
-    // ==========================================
-
     rawSankeyData = sankeyData;
-
     console.log("Sankey raw data:", rawSankeyData);
-
-
-    // ==========================================
-    // 2. GET FILTER
-    // ==========================================
-
-    const filter =
-        document.getElementById("taxonomicFilter");
-
+    const filter =document.getElementById("taxonomicFilter");
     if (!filter) {
         console.warn("taxonomicFilter element was not found.");
         return;
     }
-
-
-    // ==========================================
-    // 3. REGISTER LISTENER ONLY ONCE
-    // ==========================================
-
+    // REGISTER LISTENER ONLY ONCE
     if (filter.dataset.sankeyListenerAttached !== "true") {
-
         filter.addEventListener("change", function () {
-
             const selectedGroup = this.value;
-
             console.log("Sankey selected group:", selectedGroup);
-
             updateSankey(selectedGroup);
-
         });
-
         filter.dataset.sankeyListenerAttached = "true";
     }
-
-
-    // ==========================================
-    // 4. INITIAL DISPLAY
-    // ==========================================
-
     updateSankey(filter.value);
 }
 
-
 // ==========================================
 // UPDATE SANKEY
-// ==========================================
-// Filters the data, creates nodes/links,
-// calculates the D3 Sankey layout and
-// renders the result in Vega.
-// ==========================================
 let sankeyRenderId = 0;
-
 async function updateSankey(selectedGroup = "All") {
-
-
-    // ==========================================
-    // 0. PREVENT OUTDATED RENDERS
-    // ==========================================
-
     const currentRenderId = ++sankeyRenderId;
-
-    // ==========================================
-    // 1. FILTER DATA
-    // ==========================================
-
     const filteredData =
         selectedGroup === "All"
             ? rawSankeyData
@@ -1177,37 +799,14 @@ async function updateSankey(selectedGroup = "All") {
                 === selectedGroup
             );
 
-
-    // console.log(
-    //     "Selected Sankey group:",
-    //     selectedGroup
-    // );
-
-    // console.log(
-    //     "Filtered Sankey rows:",
-    //     filteredData.length
-    // );
-
-    // console.table(filteredData);
-
-
-    // ==========================================
-    // 2. CREATE NODES
-    // ==========================================
-
+    // CREATE NODES
     const nodes = [];
     const nodeMap = new Map();
-
-
     function addNode(name, level, group) {
         name = String(name || "").trim();
         if (!name) return null;
-
         // Keep nodes from different taxonomic groups separate
-        const id = level === "group"
-            ? `group|${name}`
-            : `${level}|${group}|${name}`;
-
+        const id = level === "group"? `group|${name}`: `${level}|${group}|${name}`;
         if (!nodeMap.has(id)) {
             const node = {
                 id: id,
@@ -1215,215 +814,93 @@ async function updateSankey(selectedGroup = "All") {
                 level: level,
                 group: group
             };
-
             nodeMap.set(id, node);
             nodes.push(node);
         }
-
         return id;
     }
 
-
-
-    // ==========================================
-    // 3. CREATE LINKS
-    // ==========================================
-
+    // CREATE LINKS
     const linkCounts = new Map();
-
-
     filteredData.forEach(row => {
-
-        const group =
-            String(row.Taxonomic || "").trim();
-
-        const order =
-            String(row.Order || "").trim();
-
-        const family =
-            String(row.Family || "").trim();
-
-
-        // Ignore incomplete rows
-
-        if (
-            !group ||
-            !order ||
-            !family
-        ) {
+        const group = String(row.Taxonomic || "").trim();
+        const order = String(row.Order || "").trim();
+        const family = String(row.Family || "").trim();
+        if (!group ||!order ||!family) {
             return;
         }
 
-
-        // --------------------------------------
         // CREATE NODES
-        // --------------------------------------
-
         const groupId = addNode(group, "group", group);
         const orderId = addNode(order, "order", group);
         const familyId = addNode(family, "family", group);
 
-
-        // --------------------------------------
         // GROUP → ORDER
-        // --------------------------------------
-
-        const groupOrderKey =
-            `${groupId}->${orderId}`;
-
-
+        const groupOrderKey =`${groupId}->${orderId}`;
         if (!linkCounts.has(groupOrderKey)) {
-
             linkCounts.set(
                 groupOrderKey,
                 {
-
                     source: groupId,
-
                     target: orderId,
-
                     value: 0
-
                 }
             );
-
         }
+        linkCounts.get(groupOrderKey).value++;
 
-
-        linkCounts
-            .get(groupOrderKey)
-            .value++;
-
-
-        // --------------------------------------
         // ORDER → FAMILY
-        // --------------------------------------
-
-        const orderFamilyKey =
-            `${orderId}->${familyId}`;
-
-
+        const orderFamilyKey =`${orderId}->${familyId}`;
         if (!linkCounts.has(orderFamilyKey)) {
-
             linkCounts.set(
                 orderFamilyKey,
                 {
-
                     source: orderId,
-
                     target: familyId,
-
                     value: 0
-
                 }
             );
-
         }
-
-
-        linkCounts
-            .get(orderFamilyKey)
-            .value++;
-
+        linkCounts.get(orderFamilyKey).value++;
     });
+    const links =Array.from(linkCounts.values());
 
-
-    const links =
-        Array.from(linkCounts.values());
-
-
-    // console.log(
-    //     "Sankey nodes before layout:",
-    //     nodes
-    // );
-
-    // console.log(
-    //     "Sankey links before layout:",
-    //     links
-    // );
-
-
-    // ==========================================
-    // 4. HANDLE EMPTY DATA
-    // ==========================================
-
+    // HANDLE EMPTY DATA
     if (nodes.length === 0) {
-
-        console.warn(
-            "No Sankey data for:",
-            selectedGroup
-        );
-
+        console.warn("No Sankey data for:",selectedGroup);
         return;
-
     }
 
-
-    // ==========================================
-    // 5. COUNT NODES PER COLUMN
-    // ==========================================
-
+    // COUNT NODES PER COLUMN
     const groupCount = nodes.filter(d => d.level === "group").length;
     const orderCount = nodes.filter(d => d.level === "order").length;
     const familyCount = nodes.filter(d => d.level === "family").length;
-
     const maxNodes = Math.max(groupCount, orderCount, familyCount);
 
-
-    // ==========================================
-    // 6. DYNAMIC HEIGHT
-    // ==========================================
-
+    // DYNAMIC HEIGHT
     const topMargin = 25;
     const bottomMargin = 35;
+    const dynamicHeight = Math.max(450,maxNodes * 22 + topMargin + bottomMargin);
 
-    const dynamicHeight = Math.max(
-        450,
-        maxNodes * 22 + topMargin + bottomMargin
-    );
-
-    // ==========================================
-    // 7. CHART SIZE
-    // ==========================================
-
+    // CHART SIZE
     const chartWidth = 700;
-
-    // Actual Sankey width
-    // Smaller than entire chart so
-    // there is equal whitespace around it.
-
-// Keep Sankey centered and compact
     const sideMargin = 35;
-
     const sankeyLeft = sideMargin;
     const sankeyRight = chartWidth - sideMargin;
 
-
-// ==========================================
-// ADJUST NODE PADDING
-// ==========================================
-
-    // More nodes = slightly smaller spacing
-    // let nodePadding = 14;
-
+    // ADJUST NODE PADDING
     let nodePadding = 12;
-
     if (maxNodes > 10) {
         nodePadding = 9;
     }
-
     if (maxNodes > 20) {
         nodePadding = 6;
     }
-
     if (maxNodes > 30) {
         nodePadding = 4;
     }
 
-
-    // ==========================================
-    // 8. D3 SANKEY LAYOUT
-    // ==========================================
+    // SANKEY LAYOUT
     const sankeyLayout = d3.sankey()
         .nodeId(d => d.id)
         .nodeWidth(16)
@@ -1434,30 +911,11 @@ async function updateSankey(selectedGroup = "All") {
             [sankeyRight, dynamicHeight - bottomMargin]
         ]);
 
-
-    // ==========================================
-    // 9. RUN SANKEY LAYOUT
-    // ==========================================
-
     const graph =
         sankeyLayout({
-
-            nodes:
-                nodes.map(d => ({
-                    ...d
-                })),
-
-            links:
-                links.map(d => ({
-                    ...d
-                }))
-
+            nodes:nodes.map(d => ({...d})),
+            links:links.map(d => ({...d}))
         });
-
-
-    // ==========================================
-    // 10. PREPARE VEGA NODES
-    // ==========================================
 
     const vegaNodes = graph.nodes.map(node => ({
         id: node.id,
@@ -1470,11 +928,6 @@ async function updateSankey(selectedGroup = "All") {
         y1: node.y1,
         nodeHeight: node.y1 - node.y0
     }));
-
-
-    // ==========================================
-    // 11. PREPARE VEGA LINKS
-    // ==========================================
 
     const vegaLinks = graph.links.map(link => ({
         source: link.source.id,
@@ -1490,123 +943,38 @@ async function updateSankey(selectedGroup = "All") {
     }));
 
 
-    // console.log(
-    //     "Final Sankey nodes:",
-    //     vegaNodes
-    // );
-
-    // console.log(
-    //     "Final Sankey links:",
-    //     vegaLinks
-    // );
-
-
-    // ==========================================
-    // 12. LOAD VEGA JSON
-    // ==========================================
-
+    // LOAD VEGA JSON
     try {
-
-        const response =
-            await fetch(
-                "Charts/sankey_diagram.json"
-            );
-
-
+        const response =await fetch("Charts/sankey_diagram.json");
         if (!response.ok) {
-
-            throw new Error(
-                `Failed to load sankey_diagram.json: ${response.status}`
-            );
-
+            throw new Error(`Failed to load sankey_diagram.json: ${response.status}`);
         }
+        const spec = await response.json();
+        spec.width =chartWidth;
+        spec.height =dynamicHeight;
 
-
-        const spec =
-            await response.json();
-
-
-        // ======================================
-        // 13. SET SIZE
-        // ======================================
-
-        spec.width =
-            chartWidth;
-
-        spec.height =
-            dynamicHeight;
-
-
-        // ======================================
-        // 14. FIND DATASETS
-        // ======================================
-
-        const nodeData =
-            spec.data.find(
-                d => d.name === "nodes"
-            );
-
-        const linkData =
-            spec.data.find(
-                d => d.name === "links"
-            );
-
-
+        // FIND DATASETS
+        const nodeData =spec.data.find(d => d.name === "nodes");
+        const linkData =spec.data.find(d => d.name === "links");
         if (!nodeData || !linkData) {
-
-            console.error(
-                "Could not find nodes or links in sankey_diagram.json"
-            );
-
+            console.error("Could not find nodes or links in sankey_diagram.json");
             return;
-
         }
 
+        // INSERT DATA
+        nodeData.values =vegaNodes;
+        linkData.values =vegaLinks;
+        spec.title.text = selectedGroup === "All"
+            ? "Taxonomic Hierarchy of Threatened Species"
+            : `${selectedGroup} Taxonomic Hierarchy`;
 
-        // ======================================
-        // 15. INSERT DATA
-        // ======================================
-
-        nodeData.values =
-            vegaNodes;
-
-        linkData.values =
-            vegaLinks;
-
-
-        // ======================================
-        // 16. UPDATE TITLE
-        // ======================================
-
-        spec.title.text =
-            selectedGroup === "All"
-
-                ? "Taxonomic Hierarchy of Threatened Species"
-
-                : `${selectedGroup} Taxonomic Hierarchy`;
-
-
-        // ======================================
-        // 17. RENDER
-        // ======================================
+        // RENDER
         if (currentRenderId !== sankeyRenderId) {
             return;
         }
-
         await vegaEmbed("#sankey_diagram",spec,{actions: false, renderer: "svg"});
-
-
-        console.log("Sankey successfully displayed:", selectedGroup);
-
-
+        // console.log("Sankey successfully displayed:", selectedGroup);
     } catch (error) {
-
-        console.error(
-            "Sankey rendering error:",
-            error
-        );
-
+        console.error("Sankey rendering error:", error);
     }
-
 }
-
