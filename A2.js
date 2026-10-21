@@ -158,7 +158,6 @@ fetch(TSX)
                 statusYearCounts[connectDotkey].Abundance += abundance;
             });
             
-
             // Sankey Diagram: Remove duplicate species
             const sankeykey = `${taxonomic}|${order}|${family}|${species}`;
             if (!sankeyCounts[sankeykey]) {
@@ -220,11 +219,7 @@ fetch(TSX)
     const minCount = Math.min(...stateCounts.map(d => d.species_count));
     const maxCount = Math.max(...stateCounts.map(d => d.species_count));
     stateCounts.forEach(d => {
-        d.standardised_count =
-            maxCount === minCount
-                ? 0
-                : (d.species_count - minCount) /
-                (maxCount - minCount);
+        d.standardised_count =maxCount === minCount? 0: (d.species_count - minCount) /(maxCount - minCount);
     });
 
     // ===============================================================================
@@ -397,7 +392,8 @@ fetch(TSX)
         console.log("Beeswarm species:", beeswarmData.length);
         console.table(beeswarmData.slice(0, 10));
 
-        // LOAD MAP
+        // ===============================================================================
+        // LOAD DATA
         fetch(MAP_FILE)
             .then(response => response.json())
             .then(mapData => {
@@ -433,6 +429,7 @@ fetch(data_gov)
         const normalCounts = {};
         const sunburstNodes = new Map();
 
+        // ===============================================================================
         //SUNBURST ADD NODE FUNCTION
         function addSunburstNode(id, parent, name, level, group=null) {
             if (!sunburstNodes.has(id)) {
@@ -484,6 +481,7 @@ fetch(data_gov)
                             }
                     kingdomCounts[kingdomkey].species.add(species);
 
+                    // ===============================================================================
                     // NORMAL STACKED BAR DATA 
                     if (!normalCounts[state]) {
                         normalCounts[state] = {};
@@ -495,7 +493,7 @@ fetch(data_gov)
                 }
                 });
 
-
+            // ===============================================================================
             // SUNBURST NODE (ROOT -> KINGDOM -> CLASS -> GENUS)
             const root = addSunburstNode("root",null,"Australia","Root","All");
             const kingdomId = `kingdom|${kingdom}`;
@@ -514,6 +512,7 @@ fetch(data_gov)
             genusNode.species.add(species);
         });
         
+        // ===============================================================================
         // TORNADO CHART
         const tornadochartData = Object.values(kingdomCounts).map(d => ({
             State: d.State,
@@ -522,6 +521,7 @@ fetch(data_gov)
             species_count: d.group === "Animals"? -d.species.size: d.species.size
         }));
 
+        // ===============================================================================
         //NORMAL STACKED BAR CHART
         const normalStatusOrder = [
             "Critically Endangered",
@@ -556,6 +556,7 @@ fetch(data_gov)
             });
         });
 
+        // ===============================================================================
         //  SUNBURST DIAGRAM
         const hierarchyNodes = Array.from(sunburstNodes.values()).map(d => ({
             id: d.id,
@@ -567,7 +568,8 @@ fetch(data_gov)
             leafValue: d.level === "Genus" ? d.species.size : 0
         }));
 
-        // LOAD MAP
+        // ===============================================================================
+        // LOAD DATA
         fetch(MAP_FILE)
             .then(response => response.json())
             .then(mapData => {
