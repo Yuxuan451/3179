@@ -10,10 +10,7 @@ const MAP_FILE = "australia-states.json";
 fetch(TSX)
     .then(response => response.arrayBuffer())
     .then(arrayBuffer => {
-
-        const workbook = XLSX.read(arrayBuffer, {
-            type: "array"
-        });
+        const workbook = XLSX.read(arrayBuffer, {type: "array"});
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
         const data = XLSX.utils.sheet_to_json(worksheet);
         const speciesByState = {};
