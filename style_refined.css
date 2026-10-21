@@ -1,0 +1,522 @@
+/* =========================================================
+   AUSTRALIA'S THREATENED SPECIES
+   Visual refinement: spacing, alignment, typography, hierarchy
+   Add this at the END of style.css so these rules take priority.
+   ========================================================= */
+
+:root {
+    --page-bg: #f4f5f0;
+    --surface: #ffffff;
+    --ink: #1d3328;
+    --forest: #1d3b2c;
+    --green: #527d62;
+    --muted: #5d6b62;
+    --soft-muted: #748078;
+    --line: #dfe6df;
+    --soft-green: #eaf0e9;
+    --shadow: 0 8px 28px rgba(29, 59, 44, 0.07);
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --content-width: 1180px;
+}
+
+/* Base type and page rhythm */
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    background: var(--page-bg);
+    color: var(--ink);
+    font-family: "Aptos", "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1,h2,h3,h4,
+p {
+    overflow-wrap: break-word;
+}
+
+p {
+    margin-top: 0;
+}
+
+.container {
+    width: min(var(--content-width), calc(100% - 64px));
+    margin: 0 auto;
+    padding: 0 0 64px;
+}
+
+/* Hero: strong figure-ground and clear hierarchy */
+.hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding: clamp(76px, 10vw, 132px) 24px clamp(84px, 11vw, 144px);
+    background: var(--forest);
+    color: #ffffff;
+    text-align: center;
+}
+
+.hero::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    width: 420px;
+    height: 420px;
+    top: -250px;
+    right: -100px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 45px rgba(255, 255, 255, 0.025),
+        0 0 0 90px rgba(255, 255, 255, 0.02);
+}
+
+.hero-content {
+    width: min(900px, 100%);
+    margin: 0 auto;
+}
+
+.eyebrow,
+.section-label,
+.insight-label,
+.intro-card-label {
+    font-size: 0.73rem;
+    font-weight: 750;
+    letter-spacing: 0.15em;
+    line-height: 1.4;
+    text-transform: uppercase;
+}
+
+.eyebrow {
+    margin: 0 0 18px;
+    color: #c7dccb;
+}
+
+.hero h1 {
+    max-width: 850px;
+    margin: 0 auto 22px;
+    color: #ffffff;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(2.65rem, 5.7vw, 5rem);
+    font-weight: 600;
+    letter-spacing: -0.045em;
+    line-height: 1.04;
+}
+
+.hero-description {
+    max-width: 650px;
+    margin: 0 auto;
+    color: #e2ebe4;
+    font-size: clamp(1rem, 1.5vw, 1.15rem);
+    line-height: 1.8;
+}
+
+/* Intro statistics: even card heights and consistent spacing */
+.intro-section {
+    width: min(var(--content-width), calc(100% - 64px));
+    margin: -34px auto 24px;
+    position: relative;
+    z-index: 1;
+}
+
+.intro-cards {
+    display: grid;
+    margin-bottom: 0;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+    align-items: stretch;
+}
+
+.intro-card {
+    min-width: 0;
+    padding: 30px 28px 32px;
+    background: var(--surface);
+    border: 1px solid rgba(223, 230, 223, 0.9);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    text-align: left;
+}
+
+.intro-card-icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin-bottom: 22px;
+    border-radius: 12px;
+    background: var(--soft-green);
+    color: var(--forest);
+    font-size: 1.15rem;
+}
+
+.intro-card-label {
+    margin: 0 0 9px;
+    color: var(--green);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+}
+
+.intro-card h3 {
+    margin: 0 0 3px;
+    color: var(--forest);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.8rem, 2.5vw, 2.35rem);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.15;
+}
+
+.intro-card h4 {
+    margin: 0 0 15px;
+    color: #35483c;
+    font-size: 1rem;
+    font-weight: 650;
+    line-height: 1.4;
+}
+
+.intro-card > p:last-child {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.94rem;
+    line-height: 1.75;
+}
+
+/* Section introductions: consistent alignment and vertical rhythm */
+.titlesection {
+    max-width: 800px;
+    margin-top: 0;
+    margin: 84px 0 30px;
+    padding: 0 0 0 22px;
+    border-left: 3px solid var(--green);
+}
+
+.section-label {
+    margin: 0 0 12px;
+    color: var(--green);
+}
+
+.titlesection h2 {
+    margin: 0 0 16px;
+    color: var(--forest);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.14;
+}
+
+.titlesection > p:last-child {
+    max-width: 68ch;
+    margin: 0;
+    color: var(--muted);
+    font-size: 1.02rem;
+    line-height: 1.85;
+}
+
+/* Chart + insight rows: aligned two-column structure */
+.card-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(220px, 3fr);
+    align-items: stretch;
+    gap: 28px;
+
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 14px;
+
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+    margin-bottom: 35px;
+}
+
+.card-grid.reverse {
+    grid-template-columns: 30% 70%;
+    gap: 20px;
+    overflow: hidden;
+}
+
+.card-grid.reverse .card-right {
+    grid-column: 1;
+    grid-row: 1;
+
+    min-width: 0;
+    width: 100%;
+
+    padding: 35px 20px 35px 8px;
+
+    border-right: 1px solid #e2e8e3;
+    border-left: none;
+}
+
+.card-grid.reverse .card-left {
+    grid-column: 2;
+    grid-row: 1;
+
+    min-width: 0;
+    width: 100%;
+    overflow: hidden;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card-left,
+.card-right {
+    min-width: 0;
+}
+
+.card-left {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-left .canvas-container {
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Allow Vega's embedded chart to use the available width */
+.card-left .vega-embed {
+    width: 100%;
+}
+
+.card-left .vega-embed > svg,
+.card-left .vega-embed > canvas {
+    max-width: 100%;
+}
+
+.canvas-container {
+    width: 100%;
+    min-width: 0;
+    overflow: visible;
+}
+
+.card-right {
+    min-width: 0;
+    align-self: stretch;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    padding: 35px 8px 35px 24px;
+    border-left: 1px solid #e2e8e3;
+}
+
+.insight-label {
+    margin: 0 0 13px;
+    color: var(--green);
+    font-size: 0.68rem;
+    letter-spacing: 0.13em;
+}
+
+.card-right h2 {
+    max-width: 18ch;
+    margin: 0 0 17px;
+    color: var(--forest);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.55rem, 2.2vw, 2.05rem);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+}
+
+.card-right > p:not(.insight-label) {
+    max-width: 42ch;
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.96rem;
+    line-height: 1.85;
+}
+
+/* Filter and notes should feel integrated, not detached */
+.map-stat-note {
+    margin-top: 24px;
+    padding: 18px 0 0;
+    border-top: 1px solid var(--line);
+}
+
+.sankey-filter {
+    display: grid;
+    grid-template-columns: auto minmax(120px, 1fr);
+    align-items: center;
+    gap: 10px 14px;
+}
+
+.sankey-filter label {
+    color: var(--ink);
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+.sankey-filter select {
+    width: 100%;
+    min-height: 42px;
+    padding: 9px 12px;
+    color: var(--ink);
+    background: #fbfcfa;
+    border: 1px solid #cbd7cc;
+    border-radius: 9px;
+    font: inherit;
+    font-size: 0.9rem;
+}
+
+.sankey-filter select:focus-visible {
+    outline: 3px solid rgba(82, 125, 98, 0.25);
+    outline-offset: 2px;
+}
+
+.sankey-filter p {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: var(--soft-muted);
+    font-size: 0.84rem;
+    line-height: 1.6;
+}
+
+/* Source and author metadata */
+.source-section {
+    margin-top: 76px;
+    padding: 26px 0 0;
+    border-top: 1px solid #cfd9d0;
+    color: var(--soft-muted);
+    font-size: 0.85rem;
+    line-height: 1.75;
+}
+
+.source-section p {
+    margin: 5px 0;
+}
+
+.source-section strong {
+    margin-right: 5px;
+    color: var(--ink);
+    font-weight: 700;
+}
+
+/* Keep visual hierarchy on smaller screens */
+@media (max-width: 900px) {
+    .container,
+    .intro-section {
+        width: min(100% - 40px, var(--content-width));
+    }
+
+    .intro-cards {
+        gap: 16px;
+    }
+
+    .intro-card {
+        padding: 24px 20px;
+    }
+
+    .card-grid,
+    .card-grid.reverse {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 22px;
+        padding: 24px;
+    }
+
+    .card-grid .card-left,
+    .card-grid.reverse .card-left,
+    .card-grid .card-right,
+    .card-grid.reverse .card-right {
+        grid-column: 1;
+        grid-row: auto;
+    }
+
+    .card-grid .card-right,
+    .card-grid.reverse .card-right {
+        padding: 22px 0 0;
+        border-left: 0;
+        border-right: 0;
+        border-top: 1px solid var(--line);
+    }
+
+    .card-right h2 {
+        max-width: 28ch;
+    }
+
+    .card-right > p:not(.insight-label) {
+        max-width: 65ch;
+    }
+}
+
+@media (max-width: 640px) {
+    .hero {
+        padding: 72px 22px 86px;
+    }
+
+    .hero h1 {
+        font-size: clamp(2.45rem, 11vw, 3.5rem);
+    }
+
+    .intro-section {
+        width: calc(100% - 32px);
+        margin-top: -28px;
+        margin-bottom: 50px;
+    }
+
+    .intro-cards {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
+    }
+
+    .intro-card {
+        padding: 24px;
+    }
+
+    .container {
+        width: calc(100% - 32px);
+        padding-bottom: 42px;
+    }
+
+    .titlesection {
+        margin-top: 58px;
+        padding-left: 16px;
+    }
+
+    .card-grid,
+    .card-grid.reverse {
+        padding: 18px;
+        margin-bottom: 18px;
+        border-radius: 14px;
+    }
+
+    .card-grid .card-right,
+    .card-grid.reverse .card-right {
+        padding-top: 20px;
+    }
+
+    .sankey-filter {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .sankey-filter p {
+        grid-column: auto;
+    }
+
+    .source-section {
+        margin-top: 48px;
+    }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+}

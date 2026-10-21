@@ -74,7 +74,17 @@
                 },
 
                 "color": {
-                    "value": "#008C95"
+                    "field": "group",
+                    "type": "nominal",
+                    "scale": {
+                        "domain": ["Animals", "Plants"],
+                        "range": ["#008C95", "#D45087"]
+                    },
+                    "legend": {
+                        "title": "Species Group",
+                        "orient": "top-right",
+                        "direction": "horizontal"
+                    }
                 },
 
                 "tooltip": [

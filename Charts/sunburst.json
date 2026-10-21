@@ -208,7 +208,68 @@
           }
         }
       }
+    },
+    {
+      "type": "group",
+      "name": "sunburstLegend",
+      "encode": {
+        "enter": {
+          "x": {"value": 10},
+          "y": {"value": 10}
+        }
+      },
+      "marks": [
+        {
+          "type": "rect",
+          "encode": {
+            "enter": {
+              "x": {"value": 0},
+              "y": {"value": 0},
+              "width": {"value": 12},
+              "height": {"value": 12},
+              "fill": {"value": "#008C95"}
+            }
+          }
+        },
+        {
+          "type": "text",
+          "encode": {
+            "enter": {
+              "x": {"value": 18},
+              "y": {"value": 10},
+              "text": {"value": "Animals"},
+              "fontSize": {"value": 12},
+              "fill": {"value": "#1d3328"}
+            }
+          }
+        },
+        {
+          "type": "rect",
+          "encode": {
+            "enter": {
+              "x": {"value": 90},
+              "y": {"value": 0},
+              "width": {"value": 12},
+              "height": {"value": 12},
+              "fill": {"value": "#D45087"}
+            }
+          }
+        },
+        {
+          "type": "text",
+          "encode": {
+            "enter": {
+              "x": {"value": 108},
+              "y": {"value": 10},
+              "text": {"value": "Plants"},
+              "fontSize": {"value": 12},
+              "fill": {"value": "#1d3328"}
+            }
+          }
+        }
+      ]
     }
+
   ],
 
   "config": {

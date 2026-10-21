@@ -14,8 +14,6 @@ fetch(TSX)
         const workbook = XLSX.read(arrayBuffer, {
             type: "array"
         });
-
-        // Get the first worksheet
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
         const data = XLSX.utils.sheet_to_json(worksheet);
         const speciesByState = {};
@@ -35,11 +33,17 @@ fetch(TSX)
             "Conservation Dependent": 3,
             "Vulnerable": 4,
             "Endangered": 5,
-            "Critically Endangered": 6,
-            "Extinct in the Wild": 7,
-            "Extinct": 8
+            "Critically Endangered": 6
         };
 
+        const statusOrder = [
+            "Least Concern",
+            "Near Threatened",
+            "Conservation Dependent",
+            "Vulnerable",
+            "Endangered",
+            "Critically Endangered"
+        ];
         const speciesMap = new Map();
 
         for (let year = 2000; year <= 2021; year++) {
@@ -230,6 +234,8 @@ fetch(TSX)
             if (newRank > oldRank) {
                 s.MaxStatus = status;
             }
+
+
         });
 
         const stateCodeMap = {
@@ -495,6 +501,7 @@ fetch(TSX)
 
         console.log("Beeswarm species:", beeswarmData.length);
         console.table(beeswarmData.slice(0, 10));
+
         // LOAD MAP
         fetch(MAP_FILE)
             .then(response => response.json())

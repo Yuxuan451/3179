@@ -39,14 +39,14 @@
       "type": "quantitative",
       "title": "IUCN Conservation Status",
       "scale": {
-        "domain": [-0.6, 7.6],
+        "domain": [-0.5, 5.5],
         "reverse": true,
         "nice": false,
         "zero": false
       },
       "axis": {
-        "values": [0, 1, 2, 3, 4, 5, 6, 7],
-        "labelExpr": "datum.value === 0 ? 'Least Concern' : datum.value === 1 ? 'Near Threatened' : datum.value === 2 ? 'Conservation Dependent' : datum.value === 3 ? 'Vulnerable' : datum.value === 4 ? 'Endangered' : datum.value === 5 ? 'Critically Endangered' : datum.value === 6 ? 'Extinct in the Wild' : 'Extinct'",
+        "values": [0, 1, 2, 3, 4, 5],
+        "labelExpr": "datum.value === 0 ? 'Least Concern' : datum.value === 1 ? 'Near Threatened' : datum.value === 2 ? 'Conservation Dependent' : datum.value === 3 ? 'Vulnerable' : datum.value === 4 ? 'Endangered' : 'Critically Endangered'",
         "labelLimit": 180,
         "grid": true,
         "tickSize": 0
@@ -63,7 +63,7 @@
           "Amphibians",
           "Plants"
         ],
-        "range": [                
+        "range": [
           "#08519C",
           "#3182BD",
           "#6BAED6",
