@@ -245,7 +245,7 @@
 
         <article class="card-grid">
             <div class="card-left">
-                <div id="beeswarmChart" class="canvas-container"></div>
+                <div id="regionTreemapChart" class="canvas-container"></div>
             </div>
             <div class="card-right">
                 <p class="insight-label">SPECIES STATUS AND RECORDED DISTRIBUTION</p>
@@ -256,6 +256,11 @@
                     <strong>Multi-State Species</strong> (x ≥ 2.0) are far less common, with birds 
                     and mammals making up the majority of species spanning 4 or more jurisdictions.
                 </p>
+                <div class="treemap-filter">
+                <label for="stateFilter">Select a state </label>
+                <select id="stateFilter"></select>
+                <p>Rectangle size represents the number of unique Endangered species in each region.</p>
+                </div>
             </div>
         </article>
               

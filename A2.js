@@ -1,8 +1,6 @@
 const TSX = "TSX.xlsx";
 const data_gov = "data.gov.xlsx";
 const MAP_FILE = "australia-states.json";
-
-
 // ==========================================
 // LOAD Data
 // ==========================================
@@ -33,6 +31,7 @@ fetch(TSX)
             "Critically Endangered": 6
         };
         const speciesMap = new Map();
+        const speciesByRegion = new Map();
 
         for (let year = 2000; year <= 2021; year++) {
             years.push(String(year));
@@ -45,9 +44,11 @@ fetch(TSX)
             const family = String(row.Family || "").trim();
             const genus = String(row.Genus || "").trim();
             const order = String(row.Order || "").trim();
+            const region = String(row.Region || "").trim();
             const taxonomic = String(row.TaxonomicGroup || "").trim();
             const lat = Number(row.RegionCentroidLatitude);
             const lon = Number(row.RegionCentroidLongitude);
+       
 
             if (!taxonomic ||!order ||!family ||!genus ||!species ||!state ||!status ||state === "Commonwealth" ||!Number.isFinite(lat) ||!Number.isFinite(lon)
             ){
@@ -177,26 +178,17 @@ fetch(TSX)
                     Regions: new Set()
                 });
             }
-            const s = speciesMap.get(species);
 
-            // Keep the existing group where available
-            if (!s.TaxonomicGroup && taxonomic) {
-                s.TaxonomicGroup = taxonomic;
+            // TREEMAP
+            const treekey = `${state}|${region}`;
+            if (!speciesByRegion.has(treekey)) {
+                speciesByRegion.set(treekey, {
+                    state: state,
+                    region: region,
+                    species: new Set()
+                });
             }
-            // Accumulate all states and regions
-            if (state && state !== "Commonwealth") {
-                s.States.add(state);
-            }
-            const selectedregion = String(row.Region || "").trim();
-            if (selectedregion) {
-                s.Regions.add(selectedregion);
-            }
-            // Keep the most severe recorded status
-            const oldRank = statusRanks[s.MaxStatus] || 0;
-            const newRank = statusRanks[status] || 0;
-            if (newRank > oldRank) {
-                s.MaxStatus = status;
-            }
+            speciesByRegion.get(treekey).species.add(species);
         });
 
     // ===============================================================================
@@ -359,38 +351,56 @@ fetch(TSX)
         });
 
     // ===============================================================================
-    // BEESWARM PLOT
-     const beeswarmData = [...speciesMap.values()]
-            .filter(d =>
-                statusRanks[d.MaxStatus] !== undefined &&
-                d.States.size > 0
-            )
-            .map(d => ({
-                species: d.Binomial,
-                group: d.TaxonomicGroup,
-                status: d.MaxStatus,
-                statusRank: statusRanks[d.MaxStatus] - 1,
-                stateCount: d.States.size,
-                regionCount: d.Regions.size
-            }));
+    // TREEMAP
+    const regionCounts = [...speciesByRegion.values()].map(d => ({
+        state: d.state,
+        region: d.region,
+        count: d.species.size
+        }))
+        .filter(d => d.count > 0);
+    const rows = [
+        {
+            id: "Australia",
+            parent: null,
+            value: 0,
+            name: "Australia",
+            depth: 0
+        }
+    ];
+    const stateGroups = new Map();
+    
+    regionCounts.forEach(d => {
+        if (!stateGroups.has(d.state)) {
+            stateGroups.set(d.state, []);
+        }
 
-        // Create vertical offsets for overlapping dots
-        const buckets = new Map();
-        beeswarmData.forEach(d => {
-            const key = `${d.status}|${d.stateCount}`;
-            if (!buckets.has(key)) {
-                buckets.set(key, []);
-            }
-            buckets.get(key).push(d);
+        stateGroups.get(d.state).push(d);
+    });
+    for (const [state, regions] of stateGroups) {
+        const stateId = `state:${state}`;
+        rows.push({
+            id: stateId,
+            parent: "Australia",
+            value: regions.reduce((sum, d) => sum + d.count, 0),
+            name: state,
+            depth: 1
         });
-        buckets.forEach(items => {
-            items.forEach((d, i) => {
-                const step = 0.13;
-                d.swarmY = d.statusRank +(i === 0? 0: Math.ceil(i / 2) *step *(i % 2 === 1 ? 1 : -1));
+
+        regions
+            .sort((a, b) => b.count - a.count)
+            .forEach(d => {
+                rows.push({
+                    id: `region:${state}:${d.region}`,
+                    parent: stateId,
+                    value: d.count,
+                    name: d.region,
+                    state: d.state,
+                    region: d.region,
+                    depth: 2
+                });
             });
-        });
-        console.log("Beeswarm species:", beeswarmData.length);
-        console.table(beeswarmData.slice(0, 10));
+    };
+    console.table(rows)
 
         // ===============================================================================
         // LOAD DATA
@@ -401,7 +411,7 @@ fetch(TSX)
                 createBumpChart(bumpChartData);
                 createTimeGraph(lineChartData, connectedDotPctData);
                 createSankey(sankeyData);
-                createbeesworm(beeswarmData)
+                createRegionTreemap(rows)
                 const taxonomicFilter = document.getElementById("taxonomicFilter");
                 taxonomicFilter.addEventListener("change", function () {
                     const selectedGroup = this.value;
@@ -726,7 +736,6 @@ function createTimeGraph(lineChartData, connectedDotPctData) {
 }
 
 function createBumpChart(bumpChartData) {
-
     fetch("Time-Series/bump_chart.json")
         .then(response => response.json())
         .then(spec => {
@@ -742,22 +751,155 @@ function createBumpChart(bumpChartData) {
         .catch(error => {console.error( "Error loading bump_chart.json:",error);});
 }
 
-function createbeesworm(beeswarmData) {
-   fetch("Charts/beeswarm.json")
-    .then(response => {
-        if (!response.ok) {
-            throw new Error("Failed to load beeswarm.json");
-        }
-        return response.json();
-    })
-    .then(spec => {
-        spec.data = {values: beeswarmData};
-        return vegaEmbed("#beeswarmChart", spec, {
-            actions: false
-        });
-    })
-    .catch(error => {console.error("Beeswarm chart error:", error);
+function createRegionTreemap(treemapData) {
+    const container = document.getElementById("regionTreemapChart");
+    const stateFilter = document.getElementById("stateFilter");
+    if (!container || !stateFilter) {
+        console.error("Treemap container or state filter not found.");
+        return;
+    }
+
+    const states = [...new Set(
+        treemapData
+            .filter(d => d.depth === 1)
+            .map(d => d.name)
+            .filter(Boolean)
+    )].sort((a, b) => a.localeCompare(b));
+
+    stateFilter.replaceChildren();
+    states.forEach(state => {
+        const option = document.createElement("option");
+        option.value = state;
+        option.textContent = state;
+        stateFilter.appendChild(option);
     });
+
+    if (!states.length) {
+        console.error("No states found in treemap data.");
+        return;
+    }
+    stateFilter.value = states[0];
+
+    fetch("Charts/region_treemap.json")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Could not load region_treemap.json");
+            }
+            return response.json();
+        })
+        .then(spec => {
+            let currentView = null;
+
+            async function renderTreemap() {
+                const selectedState = stateFilter.value;
+                const regions = treemapData.filter(d =>
+                    d.depth === 2 &&
+                    d.state === selectedState &&
+                    d.region &&
+                    Number(d.value) > 0
+                );
+
+                if (!regions.length) {
+                    console.warn(`No region data found for ${selectedState}.`);
+                    return;
+                }
+
+                const rootId = `selected:${selectedState}`;
+                const regionRows = regions
+                    .map((d, index) => ({
+                        id: `region:${index}:${d.region}`,
+                        parent: rootId,
+                        name: d.region,
+                        region: d.region,
+                        state: selectedState,
+                        value: Number(d.value)
+                    }))
+                    .sort((a, b) => b.value - a.value);
+
+                const totalSpecies = regionRows.reduce(
+                    (sum, d) => sum + d.value,
+                    0
+                );
+
+                const filteredRows = [
+                    {
+                        id: rootId,
+                        parent: null,
+                        name: selectedState,
+                        state: selectedState,
+                        value: 0
+                    },
+                    ...regionRows
+                ];
+
+                const updatedSpec = structuredClone(spec);
+                const table = updatedSpec.data.find(d => d.name === "table");
+                if (!table) {
+                    console.error("Vega spec has no table dataset.");
+                    return;
+                }
+
+                table.values = filteredRows;
+                console.table(
+                    filteredRows
+                        .filter(d => d.parent === rootId)
+                        .map(d => ({
+                            region: d.name,
+                            species: d.value
+                        }))
+                );
+                updatedSpec.title = {
+                    ...updatedSpec.title,
+                    text: `Endangered Species by Region — ${selectedState}`,
+                    subtitle: "Rectangle area represents unique Endangered species recorded in each region"
+                };
+                if (currentView) {
+                    currentView.finalize();
+                    currentView = null;
+                }
+                container.replaceChildren();
+
+                try {
+                    const result = await vegaEmbed(
+                        container,
+                        updatedSpec,
+                        { 
+                            actions: false
+                        }
+                    );
+                    currentView = result.view;
+                    const treeData = result.view.data("table");
+
+                    console.table(
+                        treeData
+                            .filter(d => d.parent && d.x0 !== undefined)
+                            .map(d => ({
+                                region: d.name,
+                                species: d.value,
+                                width: d.x1 - d.x0,
+                                height: d.y1 - d.y0,
+                                area: (d.x1 - d.x0) * (d.y1 - d.y0)
+                            }))
+                    );
+                    await currentView.runAsync();
+                } catch (error) {
+                    console.error("Treemap rendering error:", error);
+                }
+            }
+
+            // Window resize handler to maintain edge-to-edge scaling
+            window.addEventListener("resize", () => {
+                if (currentView) {
+                    currentView.runAsync();
+                }
+            });
+
+            stateFilter.addEventListener("change", renderTreemap);
+            renderTreemap();
+        })
+        .catch(error => {
+            console.error("Region treemap error:", error);
+        });
 }
 
 

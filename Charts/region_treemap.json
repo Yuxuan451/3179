@@ -1,0 +1,194 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "width": 800,
+  "height": 520,
+  "padding": 0,
+  "autosize": {
+    "type": "fit",
+    "contains": "padding"
+  },
+  "title": {
+    "text": "Endangered Species by Region — South Australia",
+    "subtitle": "Rectangle area represents unique endangered species recorded in each region",
+    "anchor": "start",
+    "font": "Arial",
+    "fontSize": 19,
+    "fontWeight": "bold",
+    "subtitleFont": "Arial",
+    "subtitleFontSize": 12,
+    "subtitleColor": "#647568",
+    "color": "#244332",
+    "offset": 12
+  },
+  "data": [
+    {
+      "name": "table",
+      "values": [],
+      "transform": [
+        {
+          "type": "stratify",
+          "key": "id",
+          "parentKey": "parent"
+        },
+        {
+          "type": "treemap",
+          "field": "value",
+          "sort": {
+            "field": "value",
+            "order": "descending"
+          },
+          "method": "resquarify",
+          "ratio": 1,
+          "padding": 0,
+          "paddingInner": 3,
+          "round": true,
+          "size": [
+            { "signal": "width" },
+            { "signal": "height" }
+          ],
+          "as": ["x0", "y0", "x1", "y1", "depth", "children"]
+        }
+      ]
+    },
+    {
+      "name": "regions",
+      "source": "table",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "datum.id !== 'root' && !datum.children && datum.value > 0"
+        }
+      ]
+    },
+    {
+      "name": "labeledRegions",
+      "source": "regions",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "(datum.x1 - datum.x0) > 48 && (datum.y1 - datum.y0) > 32"
+        }
+      ]
+    }
+  ],
+  "scales": [
+    {
+      "name": "color",
+      "type": "sqrt",
+      "domain": {
+        "data": "regions",
+        "field": "value"
+      },
+      "range": [
+        "#DCEBDD",
+        "#8FBD96",
+        "#477F59",
+        "#24563A"
+      ],
+      "zero": false
+    }
+  ],
+  "marks": [
+    {
+      "type": "rect",
+      "name": "regionTiles",
+      "from": {
+        "data": "regions"
+      },
+      "encode": {
+        "enter": {
+          "stroke": { "value": "#FFFFFF" },
+          "strokeWidth": { "value": 2 },
+          "cornerRadius": { "value": 3 },
+          "tooltip": {
+            "signal": "{'State': 'South Australia', 'Region': datum.name || datum.region, 'Unique Endangered species': datum.value}"
+          }
+        },
+        "update": {
+          "x": { "field": "x0" },
+          "y": { "field": "y0" },
+          "x2": { "field": "x1" },
+          "y2": { "field": "y1" },
+          "fill": { "scale": "color", "field": "value" }
+        },
+        "hover": {
+          "fillOpacity": { "value": 0.82 },
+          "stroke": { "value": "#244332" },
+          "strokeWidth": { "value": 2 }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "name": "regionNames",
+      "from": {
+        "data": "labeledRegions"
+      },
+      "encode": {
+        "enter": {
+          "font": { "value": "Arial" },
+          "fontWeight": { "value": "bold" },
+          "align": { "value": "left" },
+          "baseline": { "value": "top" },
+          "ellipsis": { "value": "…" }
+        },
+        "update": {
+          "x": { "signal": "datum.x0 + 7" },
+          "y": { "signal": "datum.y0 + 7" },
+          "fontSize": {
+            "signal": "(datum.x1 - datum.x0) > 100 ? 12 : 10"
+          },
+          "limit": {
+            "signal": "max(12, datum.x1 - datum.x0 - 14)"
+          },
+          "text": {
+            "signal": "datum.name || datum.region"
+          },
+          "fill": {
+            "signal": "datum.value >= 3 ? '#FFFFFF' : '#183B28'"
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "name": "regionCounts",
+      "from": {
+        "data": "labeledRegions"
+      },
+      "encode": {
+        "enter": {
+          "font": { "value": "Arial" },
+          "fontWeight": { "value": "normal" },
+          "align": { "value": "left" },
+          "baseline": { "value": "top" },
+          "ellipsis": { "value": "…" }
+        },
+        "update": {
+          "x": { "signal": "datum.x0 + 7" },
+          "y": { "signal": "datum.y0 + 23" },
+          "fontSize": { "value": 10 },
+          "limit": {
+            "signal": "max(12, datum.x1 - datum.x0 - 14)"
+          },
+          "text": {
+            "signal": "datum.value + (datum.value === 1 ? ' species' : ' species')"
+          },
+          "fill": {
+            "signal": "datum.value >= 3 ? '#FFFFFF' : '#183B28'"
+          }
+        }
+      }
+    }
+  ],
+  "config": {
+    "view": {
+      "stroke": null
+    },
+    "background": "#FFFFFF",
+    "font": "Arial",
+    "text": {
+      "font": "Arial"
+    }
+  }
+}

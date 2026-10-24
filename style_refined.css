@@ -520,3 +520,41 @@ p {
         scroll-behavior: auto;
     }
 }
+
+
+.treemap-filter {
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  background: #ffffff;
+  border: 1px solid #dce3da;
+  border-radius: 8px;
+}
+
+.treemap-filter label {
+  display: block;
+  margin-bottom: 8px;
+  color: #1d3328;
+  font-weight: 700;
+}
+
+.treemap-filter select {
+  width: 100%;
+  max-width: 420px;
+  padding: 8px;
+  color: #1d3328;
+  background: #ffffff;
+  border: 1px solid #b8c7ba;
+  border-radius: 5px;
+}
+
+.treemap-filter p {
+  margin: 8px 0 0;
+  color: #667267;
+  font-size: 12px;
+}
+
+#regionTreemapChart {
+    width: 100%;
+    min-width: 0;
+    min-height: 550px;
+}
