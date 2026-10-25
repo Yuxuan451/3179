@@ -10,6 +10,7 @@
 
     "title": {
         "text": "Different Taxonomic Groups Have Distinct Distributions",
+        "subtitle": "Circle size represents recorded species counts; colours distinguish taxonomic groups across Australian states and territories.",
         "fontSize": 22,
         "subtitleFontSize": 14,
         "anchor": "start"
@@ -37,8 +38,8 @@
 
             "mark": {
                 "type": "geoshape",
-                "fill": "#f4f4f4",
-                "stroke": "#333333",
+                "fill": "#F4F4F4",
+                "stroke": "#B7BDB8",
                 "strokeWidth": 1
             }
         },
@@ -71,7 +72,12 @@
                     "type": "quantitative",
                     "title": "Number of species",
                     "scale": {
-                        "range": [100, 1800]
+                        "range": [40, 900]
+                    },
+                    "legend": {
+                        "orient": "top-left",
+                        "format": ",",
+                        "titleLimit": 200
                     }
                 },
 
@@ -80,12 +86,18 @@
                     "type": "nominal",
                     "title": "Taxonomic Group",
                     "scale": {
+                        "domain": ["Birds", "Mammals", "Amphibians", "Plants"],
                         "range": [
-                            "#08519C",
-                            "#3182BD",
-                            "#6BAED6",
-                            "#9ECAE1"
+                        "#3478A8",
+                        "#8B6BB1",
+                        "#F2B705",
+                        "#C47A91"
                         ]
+                    },
+                    "legend": {
+                        "orient": "bottom-left",    
+                        "titleLimit": 180,
+                        "labelLimit": 140
                     }
                 },
 
