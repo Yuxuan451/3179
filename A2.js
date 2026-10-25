@@ -265,32 +265,50 @@ fetch(TSX)
         });
     });
 
-    // ===============================================================================
+    // =============================================================================
     // MULTI-LINE GRAPH
     const timeSeriesData = Object.values(timeSeriesCounts);
     const lineChartData = [];
     const BASE_YEAR = 2000;
-    // Store abundance in 2000 for each taxonomic group
     const baselineValues = {};
     timeSeriesData.forEach(d => {
-        if (d.Year === BASE_YEAR) {
-            baselineValues[d.TaxonomicGroup] = d.Abundance;
+        const year = Number(d.Year);
+        const abundance = Number(d.Abundance);
+        if (year === BASE_YEAR && Number.isFinite(abundance)) {
+            baselineValues[d.TaxonomicGroup] = abundance;
         }
     });
+
     // Calculate percentage change from 2000
     timeSeriesData.forEach(d => {
+        const year = Number(d.Year);
+        const abundance = Number(d.Abundance);
         const baseVal = baselineValues[d.TaxonomicGroup];
-        if (!baseVal || baseVal === 0) {
+        if (!Number.isFinite(year) ||!Number.isFinite(abundance) ||!Number.isFinite(baseVal) ||baseVal === 0
+        ) {
             return;
         }
-        const pctChange =((d.Abundance - baseVal) / baseVal);
         lineChartData.push({
-            Year: d.Year,
+            Year: year,
             TaxonomicGroup: d.TaxonomicGroup,
-            PctChange: pctChange
+            PctChange: (abundance - baseVal) / baseVal
         });
-
     });
+
+    // Sort by taxonomic group and then year
+    const groupOrder = {
+        Amphibians: 0,
+        Birds: 1,
+        Mammals: 2,
+        Plants: 3
+    };
+
+    lineChartData.sort((a, b) =>
+        (groupOrder[a.TaxonomicGroup] ?? 99) -
+            (groupOrder[b.TaxonomicGroup] ?? 99) ||
+        a.Year - b.Year
+    );
+    // console.table(lineChartData);
 
     // ===============================================================================
     // SANKEY DIAGRAM

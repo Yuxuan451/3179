@@ -5,12 +5,18 @@
   "data": {
     "values": []
   },
+  "title": {
+      "text": "Divergent Abundance Trajectories Across Taxonomic Groups",
+      "subtitle": "Each line represents one taxonomic group; colour indicates relative abundance change over time.",
+      "fontSize": 22,
+      "subtitleFontSize": 14,
+      "anchor": "start"
+  },
   "layer": [
     {
       "mark": {
         "type": "line",
-        "strokeWidth": 3,
-        "point": true
+        "strokeWidth": 3
       },
       "encoding": {
         "x": {
@@ -26,16 +32,18 @@
           }
         },
         "y": {
-        "field": "PctChange",
-        "type": "quantitative",
-        "scale": {
-            "domain": [-2, 2],
+          "field": "PctChange",
+          "type": "quantitative",
+          "scale": {
+            "domain": [-1.5, 1],
             "clamp": true
-        },
-        "axis": {
+          },
+          "axis": {
             "title": "Change in Abundance",
-            "format": "+.0%"
-        }
+            "format": "+.0%",
+            "grid": true,
+            "tickCount": 7
+          }
         },
         "color": {
           "field": "TaxonomicGroup",
@@ -43,11 +51,44 @@
           "title": "Taxonomic Group",
           "scale": {
             "domain": ["Amphibians", "Birds", "Mammals", "Plants"],
-            "range": ["#08519C", "#3182BD", "#6BAED6", "#9ECAE1"]
+            "range": ["#F2B705", "#3478A8", "#8B6BB1", "#C47A91"]
           }
         },
         "detail": {
           "field": "TaxonomicGroup"
+        },
+        "order": {
+          "field": "Year",
+          "type": "quantitative",
+          "sort": "ascending"
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "point",
+        "filled": true,
+        "size": 70,
+        "opacity": 1
+      },
+      "encoding": {
+        "x": {
+          "field": "Year",
+          "type": "quantitative",
+          "scale": { "domain": [2000, 2021] }
+        },
+        "y": {
+          "field": "PctChange",
+          "type": "quantitative",
+          "scale": { "domain": [-1.5, 1], "clamp": true }
+        },
+        "color": {
+          "field": "TaxonomicGroup",
+          "type": "nominal",
+          "scale": {
+            "domain": ["Amphibians", "Birds", "Mammals", "Plants"],
+            "range": ["#F2B705", "#3478A8", "#8B6BB1", "#C47A91"]
+          }
         },
         "tooltip": [
           {
@@ -82,6 +123,69 @@
           "datum": 0
         }
       }
+    },
+    {
+      "transform": [
+        {
+          "filter": "datum.TaxonomicGroup === 'Plants' && toNumber(datum.Year) === 2019"
+        },
+        {
+          "calculate": "toNumber(datum.Year) + ': ' + format(datum.PctChange, '+.0%')",
+          "as": "PeakAnnotation"
+        }
+      ],
+      "layer": [
+        {
+          "mark": {
+            "type": "point",
+            "filled": true,
+            "size": 150,
+            "color": "#C47A91",
+            "stroke": "#FFFFFF",
+            "strokeWidth": 2
+          },
+          "encoding": {
+            "x": {
+              "field": "Year",
+              "type": "quantitative",
+              "scale": { "domain": [2000, 2021] }
+            },
+            "y": {
+              "field": "PctChange",
+              "type": "quantitative",
+              "scale": { "domain": [-1.5, 1], "clamp": true }
+            }
+          }
+        },
+        {
+          "mark": {
+            "type": "text",
+            "align": "left",
+            "baseline": "bottom",
+            "dx": 10,
+            "dy": -8,
+            "fontSize": 12,
+            "fontWeight": "bold",
+            "color": "#800B41"
+          },
+          "encoding": {
+            "x": {
+              "field": "Year",
+              "type": "quantitative",
+              "scale": { "domain": [2000, 2021] }
+            },
+            "y": {
+              "field": "PctChange",
+              "type": "quantitative",
+              "scale": { "domain": [-1.5, 1], "clamp": true }
+            },
+            "text": {
+              "field": "PeakAnnotation",
+              "type": "nominal"
+            }
+          }
+        }
+      ]
     }
   ]
 }
