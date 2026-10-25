@@ -1,30 +1,26 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-
-  "width": 500,
-  "height": 500,
+  "width": 900,
+  "height": 600,
 
   "title": {
     "text": "Taxonomic Structure of Australia's Threatened Species",
-    "subtitle": "Kingdom → Class → Family → Genus | Segment size represents number of species",
+    "subtitle": "Inner to outer rings show Kingdom, Class, Family and Genus; arc length represents the number of species.",
     "fontSize": 22,
-    "subtitleFontSize": 13,
-    "fontWeight": "bold",
-    "anchor": "start",
-    "offset": 15
+    "subtitleFontSize": 14,
+    "color": "#1d3328",
+    "anchor": "start"
   },
 
   "signals": [
     {
       "name": "radius",
-      "update": "min(width, height) / 2 - 50"
+      "update": "min(width, height) / 2 - 40"
     },
-
     {
       "name": "centerX",
       "update": "width / 2"
     },
-
     {
       "name": "centerY",
       "update": "height / 2 + 20"
@@ -36,7 +32,6 @@
       "name": "table",
       "values": []
     },
-
     {
       "name": "tree",
       "source": "table",
@@ -54,168 +49,197 @@
             "order": "descending"
           },
           "size": [
-            {
-              "signal": "2 * PI"
-            },
-            {
-              "signal": "radius"
-            }
+            { "signal": "2 * PI" },
+            { "signal": "radius" }
           ],
-          "as": [
-            "a0",
-            "r0",
-            "a1",
-            "r1",
-            "depth",
-            "children"
-          ]
+          "as": ["a0", "r0", "a1", "r1", "depth", "children"]
         }
       ]
     }
   ],
 
   "scales": [
-      {
-          "name": "color",
-          "type": "ordinal",
-          "domain": [
-              "Root",
-              "Kingdom",
-              "Class",
-              "Family",
-              "Genus"
-          ],
-          "range": [
-              "#005F60",
-              "#008C95",
-              "#40A6A6",
-              "#80C5C1",
-              "#C2E3DF"
-          ]
-      }
+    {
+      "name": "color",
+      "type": "ordinal",
+      "domain": ["Root", "Kingdom", "Class", "Family", "Genus"],
+      "range": ["#005F60", "#008C95", "#40A6A6", "#80C5C1", "#C2E3DF"]
+    }
   ],
 
   "marks": [
-
     {
       "type": "arc",
-
-      "from": {
-        "data": "tree"
-      },
-
+      "from": { "data": "tree" },
       "encode": {
-
         "enter": {
-          "x": {
-            "signal": "centerX"
-          },
-
-          "y": {
-            "signal": "centerY"
-          },
-
-          "stroke": {
-            "value": "white"
-          },
-
-          "strokeWidth": {
-            "value": 0.7
-          }
+          "x": { "signal": "centerX" },
+          "y": { "signal": "centerY" },
+          "stroke": { "value": "#FFFFFF" },
+          "strokeWidth": { "value": 0.8 }
         },
-
         "update": {
-
-          "startAngle": {
-            "field": "a0"
-          },
-
-          "endAngle": {
-            "field": "a1"
-          },
-
-          "innerRadius": {
-            "field": "r0"
-          },
-
-          "outerRadius": {
-            "field": "r1"
-          },
-
+          "startAngle": { "field": "a0" },
+          "endAngle": { "field": "a1" },
+          "innerRadius": { "field": "r0" },
+          "outerRadius": { "field": "r1" },
           "fill": {
-              "signal": "datum.group === 'Animals' ? (datum.level === 'Kingdom' ? '#006D75' : datum.level === 'Class' ? '#008C95' : datum.level === 'Family' ? '#40A6A6' : '#80C5C1') : datum.group === 'Plants' ? (datum.level === 'Kingdom' ? '#AD245F' : datum.level === 'Class' ? '#D45087' : datum.level === 'Family' ? '#E783AC' : '#F2BFD3') : '#808080'"
+            "signal": "datum.group === 'Animals' ? (datum.level === 'Kingdom' ? '#006D75' : datum.level === 'Class' ? '#008C95' : datum.level === 'Family' ? '#40A6A6' : '#80C5C1') : datum.group === 'Plants' ? (datum.level === 'Kingdom' ? '#AD245F' : datum.level === 'Class' ? '#D45087' : datum.level === 'Family' ? '#E783AC' : '#F2BFD3') : '#EAEAEA'"
           },
-
-          "fillOpacity": {
-            "value": 0.95
-          },
-
+          "fillOpacity": { "value": 0.95 },
           "tooltip": {
             "signal": "{'Taxonomic Level': datum.level, 'Name': datum.name, 'Species Count': datum.species_count}"
           }
         },
-
         "hover": {
-
-          "fillOpacity": {
-            "value": 1
-          },
-
-          "stroke": {
-            "value": "#333333"
-          },
-
-          "strokeWidth": {
-            "value": 1.5
-          }
+          "fillOpacity": { "value": 1 },
+          "stroke": { "value": "#1d3328" },
+          "strokeWidth": { "value": 1.5 }
         }
       }
     },
 
     {
       "type": "text",
-
+      "name": "centerHubTitle",
       "encode": {
-
         "enter": {
+          "x": { "signal": "centerX" },
+          "y": { "signal": "centerY - 7" },
+          "align": { "value": "center" },
+          "baseline": { "value": "middle" },
+          "font": { "value": "Arial" },
+          "fontWeight": { "value": "bold" },
+          "fontSize": { "value": 14 },
+          "fill": { "value": "#1d3328" }
+        },
+        "update": {
+          "text": { "value": "Australia" }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "name": "centerHubSub",
+      "encode": {
+        "enter": {
+          "x": { "signal": "centerX" },
+          "y": { "signal": "centerY + 9" },
+          "align": { "value": "center" },
+          "baseline": { "value": "middle" },
+          "font": { "value": "Arial" },
+          "fontSize": { "value": 12 },
+          "fill": { "value": "#647568" }
+        },
+        "update": {
+          "text": { "value": "2,222 species" }
+        }
+      }
+    },
 
+    {
+      "type": "text",
+      "name": "arcLabelsName",
+      "from": { "data": "tree" },
+      "encode": {
+        "enter": {
+          "font": { "value": "Arial" },
+          "fontWeight": { "value": "bold" },
+          "fontSize": { "value": 13 },
+          "fill": { "value": "#FFFFFF" },
+          "align": { "value": "center" },
+          "baseline": { "value": "bottom" }
+        },
+        "update": {
           "x": {
-            "signal": "centerX"
+            "signal": "centerX + ((datum.r0 + datum.r1) / 2) * cos((datum.a0 + datum.a1) / 2 - PI/2)"
           },
-
           "y": {
-            "signal": "centerY"
+            "signal": "centerY + ((datum.r0 + datum.r1) / 2) * sin((datum.a0 + datum.a1) / 2 - PI/2) - 1"
           },
-
-          "align": {
-            "value": "center"
+          "text": {
+            "signal": "(datum.a1 - datum.a0) >= 0.7 && datum.depth >= 1 && datum.name !== 'Magnoliopsida' && (datum.level === 'Kingdom' || datum.level === 'Class') ? datum.name : ''"
           },
-
-          "baseline": {
-            "value": "middle"
-          },
-
-          "fontSize": {
-            "value": 17
-          },
-
-          "fontWeight": {
-            "value": "bold"
-          },
-
-          "fill": {
-            "value": "#173F5F"
+          "opacity": {
+            "signal": "(datum.a1 - datum.a0) >= 0.7 && datum.depth >= 1 && datum.name !== 'Magnoliopsida' && (datum.level === 'Kingdom' || datum.level === 'Class') ? 1 : 0"
           }
         }
       }
     },
     {
+      "type": "text",
+      "name": "arcLabelsValue",
+      "from": { "data": "tree" },
+      "encode": {
+        "enter": {
+          "font": { "value": "Arial" },
+          "fontWeight": { "value": "normal" },
+          "fontSize": { "value": 11 },
+          "fill": { "value": "#FFFFFF" },
+          "fillOpacity": { "value": 0.9 },
+          "align": { "value": "center" },
+          "baseline": { "value": "top" }
+        },
+        "update": {
+          "x": {
+            "signal": "centerX + ((datum.r0 + datum.r1) / 2) * cos((datum.a0 + datum.a1) / 2 - PI/2)"
+          },
+          "y": {
+            "signal": "centerY + ((datum.r0 + datum.r1) / 2) * sin((datum.a0 + datum.a1) / 2 - PI/2) + 2"
+          },
+          "text": {
+            "signal": "(datum.a1 - datum.a0) >= 0.7 && datum.depth >= 1 && datum.name !== 'Magnoliopsida' && (datum.level === 'Kingdom' || datum.level === 'Class') ? (datum.species_count + ' species') : ''"
+          },
+          "opacity": {
+            "signal": "(datum.a1 - datum.a0) >= 0.7 && datum.depth >= 1 && datum.name !== 'Magnoliopsida' && (datum.level === 'Kingdom' || datum.level === 'Class') ? 1 : 0"
+          }
+        }
+      }
+    },
+
+    {
+      "type": "rule",
+      "name": "magnoliopsidaCalloutLine",
+      "encode": {
+        "enter": {
+          "stroke": { "value": "#A82667" },
+          "strokeWidth": { "value": 1.5 }
+        },
+        "update": {
+          "x": { "signal": "centerX + 115" },
+          "y": { "signal": "centerY - 10" },
+          "x2": { "signal": "centerX + 210" },
+          "y2": { "signal": "centerY - 80" }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "name": "magnoliopsidaLabel",
+      "encode": {
+        "enter": {
+          "font": { "value": "Arial" },
+          "fontWeight": { "value": "bold" },
+          "fontSize": { "value": 12 },
+          "fill": { "value": "#A82667" },
+          "align": { "value": "left" },
+          "baseline": { "value": "bottom" }
+        },
+        "update": {
+          "x": { "signal": "centerX + 215" },
+          "y": { "signal": "centerY - 85" },
+          "text": { "value": "Magnoliopsida: 1,120 recorded species" }
+        }
+      }
+    },
+
+    {
       "type": "group",
       "name": "sunburstLegend",
       "encode": {
         "enter": {
-          "x": {"value": 10},
-          "y": {"value": 10}
+          "x": { "value": 10 },
+          "y": { "value": 10 }
         }
       },
       "marks": [
@@ -223,11 +247,12 @@
           "type": "rect",
           "encode": {
             "enter": {
-              "x": {"value": 0},
-              "y": {"value": 0},
-              "width": {"value": 12},
-              "height": {"value": 12},
-              "fill": {"value": "#008C95"}
+              "x": { "value": 0 },
+              "y": { "value": 0 },
+              "width": { "value": 12 },
+              "height": { "value": 12 },
+              "fill": { "value": "#008C95" },
+              "cornerRadius": { "value": 2 }
             }
           }
         },
@@ -235,11 +260,12 @@
           "type": "text",
           "encode": {
             "enter": {
-              "x": {"value": 18},
-              "y": {"value": 10},
-              "text": {"value": "Animals"},
-              "fontSize": {"value": 12},
-              "fill": {"value": "#1d3328"}
+              "x": { "value": 18 },
+              "y": { "value": 10 },
+              "text": { "value": "Animals" },
+              "fontSize": { "value": 14 },
+              "fontWeight": { "value": "bold" },
+              "fill": { "value": "#1d3328" }
             }
           }
         },
@@ -247,11 +273,12 @@
           "type": "rect",
           "encode": {
             "enter": {
-              "x": {"value": 90},
-              "y": {"value": 0},
-              "width": {"value": 12},
-              "height": {"value": 12},
-              "fill": {"value": "#D45087"}
+              "x": { "value": 95 },
+              "y": { "value": 0 },
+              "width": { "value": 12 },
+              "height": { "value": 12 },
+              "fill": { "value": "#D45087" },
+              "cornerRadius": { "value": 2 }
             }
           }
         },
@@ -259,34 +286,22 @@
           "type": "text",
           "encode": {
             "enter": {
-              "x": {"value": 108},
-              "y": {"value": 10},
-              "text": {"value": "Plants"},
-              "fontSize": {"value": 12},
-              "fill": {"value": "#1d3328"}
+              "x": { "value": 113 },
+              "y": { "value": 10 },
+              "text": { "value": "Plants" },
+              "fontSize": { "value": 14 },
+              "fontWeight": { "value": "bold" },
+              "fill": { "value": "#1d3328" }
             }
           }
         }
       ]
     }
-
   ],
 
   "config": {
-    "view": {
-      "stroke": null
-    },
-
+    "view": { "stroke": null },
     "font": "Arial",
-
-    "title": {
-      "font": "Arial",
-      "fontWeight": "bold"
-    },
-
-    "axis": {
-      "labelFont": "Arial",
-      "titleFont": "Arial"
-    }
+    "title": { "font": "Arial", "fontWeight": "bold" }
   }
 }
