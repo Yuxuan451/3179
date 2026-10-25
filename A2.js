@@ -83,9 +83,10 @@ fetch(TSX)
             statetaxonomicCounts[taxonomickey].species.add(species);
 
             // dot species
-            const dotkey = `${state}|${species}`;
+            const dotkey = species;
             if (!dotSpecies[dotkey]) {
                 dotSpecies[dotkey] = {
+                    Binomial: species,
                     State: state,
                     taxonomic: taxonomic,
                     IUCNStatus: status,
@@ -235,19 +236,32 @@ fetch(TSX)
     // ===============================================================================
     // DOT DENSITY MAP
     const dotDensityData = Object.values(dotSpecies);
+    const dotsByCoordinate = {};
+
     dotDensityData.forEach(d => {
-        if (!dotsByState[d.State]) {
-            dotsByState[d.State] = [];
+        const coordinateKey = `${d.longitude}|${d.latitude}`;
+        if (!dotsByCoordinate[coordinateKey]) {
+            dotsByCoordinate[coordinateKey] = [];
         }
-        dotsByState[d.State].push(d);
+        dotsByCoordinate[coordinateKey].push(d);
     });
-    Object.values(dotsByState).forEach(stateDots => {
-        stateDots.forEach((d, i) => {
-            const angle = i * 137.5;
-            const radius = 0.15 + ((i % 8) * 0.04);
-            const angleRad = angle * Math.PI / 180;
-            d.longitude += Math.cos(angleRad) * radius;
-            d.latitude += Math.sin(angleRad) * radius;
+
+    // Count unique species at each location, then apply jitter
+    Object.values(dotsByCoordinate).forEach(locationDots => {
+        const uniqueSpecies = new Set(
+            locationDots.map(d => d.Binomial)
+        );
+        locationDots.forEach((d, i) => {
+            d.species_count = uniqueSpecies.size;
+            if (locationDots.length > 1) {
+                const angle = i * 137.508 * Math.PI / 180;
+                const radius = 0.012 * Math.sqrt(i + 1);
+                d.displayLongitude =d.longitude + Math.cos(angle) * radius - 0.3;
+                d.displayLatitude =d.latitude + Math.sin(angle) * radius;
+            } else {
+                d.displayLongitude = d.longitude - 0.3;
+                d.displayLatitude = d.latitude;
+            }
         });
     });
 

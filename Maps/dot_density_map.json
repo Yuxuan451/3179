@@ -9,16 +9,16 @@
     },
 
     "title": {
-        "text": "Distribution of IUCN Status of Threatened Species",
-        "subtitle": "Each dot represents one unique threatened species and differentiate the status of the species by colour",
-        "fontSize": 20,
-        "subtitleFontSize": 12,
+        "text": "Where Are Threatened Species at Greatest Risk?",
+        "subtitle": "Each dot represents one unique species; colour indicates its IUCN conservation status.",
+        "fontSize": 22,
+        "subtitleFontSize": 14,
         "anchor": "start"
     },
 
     "projection": {
     "type": "mercator",
-    "center": [133, -27],
+    "center": [130, -27],
     "scale": 800
     },
 
@@ -41,7 +41,7 @@
             "mark": {
                 "type": "geoshape",
                 "fill": "#f4f4f4",
-                "stroke": "#333333",
+                "stroke": "#B7BDB8",
                 "strokeWidth": 1
             }
         },
@@ -83,14 +83,30 @@
                         "range": [
                             "#99000D",
                             "#D7301F",
-                            "#EF6548",
-                            "#FC8D59",
-                            "#FDBB84"
+                            "#E3A008",
+                            "#6BAED6",
+                            "#8C969F"
                         ]
+                    },
+                    "legend": {
+                        "orient": "bottom-left",
+                        "titleLimit": 200,
+                        "labelLimit": 180
                     }
                 },
 
                 "tooltip": [
+                    {
+                        "field": "Binomial",
+                        "type": "nominal",
+                        "title": "Scientific Name"
+                    },
+                    {
+                        "field": "species_count",
+                        "type": "quantitative",
+                        "title": "Species Count",
+                        "format": ",d"
+                    },
                     {
                         "field": "State",
                         "type": "nominal",
