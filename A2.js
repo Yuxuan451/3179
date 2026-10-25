@@ -252,7 +252,7 @@ fetch(TSX)
     });
 
     // ===============================================================================
-    // STREAM GRAPH
+    // MULTI-LINE GRAPH
     const timeSeriesData = Object.values(timeSeriesCounts);
     const lineChartData = [];
     const BASE_YEAR = 2000;
@@ -710,11 +710,11 @@ function createChart(tornadochartData, normalStackedData, hierarchyNodes) {
 }
 
 function createTimeGraph(lineChartData, connectedDotPctData) {
-    fetch("Time-Series/stream_graph.json")
+    fetch("Time-Series/multi_line_chart.json")
         .then(response => response.json())
         .then(spec => {
             spec.data.values = lineChartData;
-            vegaEmbed("#stream_graph",spec,{ actions: false });
+            vegaEmbed("#multi_line",spec,{ actions: false });
         })
         .catch(error => {
             console.error("Time series error:", error);});

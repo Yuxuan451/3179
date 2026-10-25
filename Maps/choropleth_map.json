@@ -53,10 +53,10 @@
         "color": {
           "field": "standardised_count",
           "type": "quantitative",
-          "title": "Standardised species count",
+          "title": "Relative species count",
           "scale": {
             "domain": [0, 1],
-            "range": ["#edf8e9", "#006d2c"]
+            "range": ["#F1F4ED", "#285943"]
           },
           "legend": {
             "format": ".1f"
@@ -71,12 +71,13 @@
           {
             "field": "species_count",
             "type": "quantitative",
-            "title": "Unique species count"
+            "title": "Unique Threatened Species",
+            "format": ","
           },
           {
             "field": "standardised_count",
             "type": "quantitative",
-            "title": "Standardised count",
+            "title": "Relative Count (0-1)",
             "format": ".2f"
           }
         ]
