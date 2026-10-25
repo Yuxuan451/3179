@@ -14,8 +14,8 @@
     "bottom": 50
   },
   "title": {
-    "text": "Threatened Species Composition by State",
-    "subtitle": "100% stacked bars show the proportion of each threatened status within each state",
+    "text": "Threat Status Composition Across Australian States",
+    "subtitle": "Each bar represents 100% of listed species in a state or territory, divided by threat category.",
     "fontSize": 22,
     "subtitleFontSize": 14,
     "anchor": "start",
@@ -60,10 +60,10 @@
       "range": [
         "#99000D",
         "#D7301F",
-        "#EF6548",
-        "#FC8D59",
-        "#FDBB84",
-        "#FEE0B6"
+        "#E3A008",
+        "#39846B",
+        "#5B4636",
+        "#777777"
       ]
     }
   ],
@@ -79,7 +79,7 @@
     {
       "orient": "left",
       "scale": "y",
-      "title": "Percentage of Threatened Species (%)",
+      "title": "Share of Listed Species (%)",
       "values": [0, 20, 40, 60, 80, 100],
       "grid": true,
       "labelExpr": "datum.value + '%'",
