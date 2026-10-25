@@ -8,17 +8,11 @@
     "contains": "padding"
   },
   "title": {
-    "text": "Endangered Species by Region — South Australia",
+    "text": "Endangered Species by Region",
     "subtitle": "Rectangle area represents unique endangered species recorded in each region",
     "anchor": "start",
-    "font": "Arial",
-    "fontSize": 19,
-    "fontWeight": "bold",
-    "subtitleFont": "Arial",
-    "subtitleFontSize": 12,
-    "subtitleColor": "#647568",
-    "color": "#244332",
-    "offset": 12
+    "fontSize": 22,
+    "subtitleFontSize": 14
   },
   "data": [
     {
@@ -172,7 +166,7 @@
             "signal": "max(12, datum.x1 - datum.x0 - 14)"
           },
           "text": {
-            "signal": "datum.value + (datum.value === 1 ? ' species' : ' species')"
+            "signal": "datum.value + ' species'"
           },
           "fill": {
             "signal": "datum.value >= 3 ? '#FFFFFF' : '#183B28'"

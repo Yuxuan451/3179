@@ -9,7 +9,9 @@
 
     "title": {
         "text": "Taxonomic Hierarchy of Threatened Species",
+        "subtitle": "Flow width represents the number of recorded species.",
         "fontSize": 22,
+        "subtitleFontSize": 14,
         "anchor": "start"
     },
 
@@ -208,16 +210,16 @@
             "name": "nodeColor",
             "type": "ordinal",
             "domain": [
-                "Amphibians",
-                "Mammals",
-                "Birds",
-                "Plants"
+            "Birds",
+            "Mammals",
+            "Amphibians",
+            "Plants"
             ],
             "range": [
-                "#08519C",
-                "#3182BD",
-                "#6BAED6",
-                "#9ECAE1"
+            "#3478A8",
+            "#8B6BB1",
+            "#F2B705",
+            "#C47A91"
             ]
         }
     ]

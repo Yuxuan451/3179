@@ -558,3 +558,13 @@ p {
     min-width: 0;
     min-height: 550px;
 }
+
+/* Keep insight paragraphs regular-weight */
+.card-grid .card-right > p:not(.insight-label) {
+    font-weight: 400;
+}
+
+/* Bold only the text explicitly wrapped in <strong> */
+.card-grid .card-right > p:not(.insight-label) strong {
+    font-weight: 700;
+}
