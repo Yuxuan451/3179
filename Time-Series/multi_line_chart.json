@@ -89,26 +89,7 @@
             "domain": ["Amphibians", "Birds", "Mammals", "Plants"],
             "range": ["#F2B705", "#3478A8", "#8B6BB1", "#C47A91"]
           }
-        },
-        "tooltip": [
-          {
-            "field": "TaxonomicGroup",
-            "type": "nominal",
-            "title": "Taxonomic Group"
-          },
-          {
-            "field": "Year",
-            "type": "quantitative",
-            "title": "Year",
-            "format": "d"
-          },
-          {
-            "field": "PctChange",
-            "type": "quantitative",
-            "title": "Change from 2000",
-            "format": "+.1%"
-          }
-        ]
+        }
       }
     },
     {

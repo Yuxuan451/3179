@@ -1,7 +1,11 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "width": 750,
-  "height": 450,
+  "width": 950,
+  "height": 550,
+  "autosize": {
+    "type": "fit",
+    "contains": "padding"
+  },
   "title": {
     "text": "Change in Species Abundance by IUCN Status",
     "subtitle": "Combined abundance compared between 2000 and 2021",
@@ -14,10 +18,13 @@
   },
   "layer": [
     {
+       "transform": [
+        {"filter": "datum.Year === 2021"}
+      ],
       "mark": {
-        "type": "line",
-        "strokeWidth": 2.5,
-        "color": "#CCCCCC"
+        "type": "rule",
+        "color": "#D0D0D0",
+        "strokeWidth": 3
       },
       "encoding": {
         "y": {
@@ -34,7 +41,7 @@
           ],
           "axis": {
             "title": "IUCN Status",
-            "labelFontSize": 11
+            "labelFontSize": 14
           }
         },
         "x": {
@@ -44,21 +51,13 @@
             "title": "Percentage Change from 2000",
             "labelExpr": "datum.value + '%'"
           }
-        },
-        "detail": {
-          "field": "Status",
-          "type": "nominal"
-        },
-        "order": {
-          "field": "Year",
-          "type": "ordinal"
         }
       }
     },
     {
       "mark": {
         "type": "rule",
-        "color": "#333333",
+        "color": "#CCCCCC",
         "strokeDash": [4, 4],
         "strokeWidth": 1.5
       },
@@ -69,6 +68,9 @@
       }
     },
     {
+      "transform": [
+        {"filter": "datum.Year === 2021"}
+      ],
       "mark": {
         "type": "point",
         "filled": true,
@@ -84,9 +86,7 @@
             "Endangered",
             "Vulnerable",
             "Near Threatened",
-            "Least Concern",
-            "Conservation Dependent",
-            "Extinct"
+            "Least Concern"
           ]
         },
         "x": {
@@ -94,19 +94,24 @@
           "type": "quantitative"
         },
         "color": {
-          "field": "Year",
+          "field": "Status",
           "type": "nominal",
           "scale": {
-            "domain": [2000, 2021],
-            "range": ["#B38B35", "#F0E2BD"]
+            "domain": [
+              "Critically Endangered",
+              "Endangered",
+              "Vulnerable",
+              "Near Threatened",
+              "Least Concern"
+            ],
+            "range": [
+              "#7F000D",
+              "#D94801",
+              "#F2994A",
+              "#2B6CB0",
+              "#718096"
+            ]
           },
-          "legend": {
-            "title": "Year"
-          }
-        },
-        "shape": {
-          "field": "Year",
-          "type": "nominal",
           "legend": null
         },
         "tooltip": [
@@ -133,6 +138,45 @@
             "format": "+.1f"
           }
         ]
+      }
+    },
+    {
+      "transform": [
+        {"filter": "datum.PctChange !== 0"},
+        {
+          "calculate": "format(datum.PctChange, '.1f') + '%'",
+          "as": "PctLabel"
+        }
+      ],
+      "mark": {
+        "type": "text",
+        "align": "left",
+        "baseline": "middle",
+        "dx": 10,
+        "fontSize": 14,
+        "fontWeight": "bold",
+        "color": "#26352C"
+      },
+      "encoding": {
+        "y": {
+          "field": "Status",
+          "type": "nominal",
+          "sort": [
+            "Critically Endangered",
+            "Endangered",
+            "Vulnerable",
+            "Near Threatened",
+            "Least Concern"
+          ]
+        },
+        "x": {
+          "field": "PctChange",
+          "type": "quantitative"
+        },
+        "text": {
+          "field": "PctLabel",
+          "type": "nominal"
+        }
       }
     }
   ]

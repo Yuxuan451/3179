@@ -291,6 +291,7 @@ fetch(TSX)
         lineChartData.push({
             Year: year,
             TaxonomicGroup: d.TaxonomicGroup,
+            Abundance: abundance,
             PctChange: (abundance - baseVal) / baseVal
         });
     });
@@ -308,7 +309,6 @@ fetch(TSX)
             (groupOrder[b.TaxonomicGroup] ?? 99) ||
         a.Year - b.Year
     );
-    // console.table(lineChartData);
 
     // ===============================================================================
     // SANKEY DIAGRAM
@@ -362,7 +362,7 @@ fetch(TSX)
     const statusBaselines = {};
     connectedDotData.forEach(d => {
         if (d.Year === 2000) {
-            statusBaselines[d.Status] = d.Abundance;
+            statusBaselines[d.Status] = Number(d.Abundance);
         }
     });
     const connectedDotPctData = connectedDotData
@@ -373,14 +373,16 @@ fetch(TSX)
         })
         .map(d => {
             const baseline = statusBaselines[d.Status];
+            const abundance = Number(d.Abundance);
             return {
                 Status: d.Status,
-                Year: d.Year,
-                Abundance: d.Abundance,
+                Year: Number(d.Year),
+                Abundance: abundance,
                 PctChange:
-                    ((d.Abundance - baseline) / baseline) * 100
+                    ((abundance - baseline) / baseline) * 100
             };
         });
+    console.log("Connected dot plot data:", connectedDotPctData);
 
     // ===============================================================================
     // TREEMAP
@@ -751,11 +753,11 @@ function createTimeGraph(lineChartData, connectedDotPctData) {
         .catch(error => {
             console.error("Time series error:", error);});
 
-    fetch("Time-Series/connected_dot.json")
+    fetch("Time-Series/lolipop_chart.json")
         .then(response => response.json())
         .then(spec => {
             spec.data.values = connectedDotPctData;
-            vegaEmbed("#connected_dot", spec, {
+            vegaEmbed("#lollipop", spec, {
                 actions: false,
                 renderer: "svg"
             })
