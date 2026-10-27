@@ -141,11 +141,11 @@
         {
           "mark": {
             "type": "text",
-            "align": "left",
+            "align": "right",
             "baseline": "bottom",
-            "dx": 10,
-            "dy": -8,
-            "fontSize": 12,
+            "dx": -10,
+            "dy": -10,
+            "fontSize": 18,
             "fontWeight": "bold",
             "color": "#800B41"
           },
